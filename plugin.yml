@@ -1,0 +1,50 @@
+name: ColorMatch
+version: 1.0
+api: 1.12.0
+main: ColorMatch\ColorMatch
+author: CreeperFace
+description: Color Match minigame
+
+commands:
+    cm:
+        description: "ColorMatch command"
+
+permissions:
+    cm:
+        description: "main ColorMatch permission"
+        default: op
+        children:
+            cm.command:
+                description: "main command permission"
+                default: op
+                children:
+                    cm.command.help:
+                        description: "ColorMatch help"
+                        default: true
+                    cm.command.join:
+                        description: "join to arena"
+                        default: true
+                    cm.command.leave:
+                        description: "leave arena "
+                        default: true
+                    cm.command.start:
+                        description: "start game"
+                        default: op
+                    cm.command.stop:
+                        description: "stop game"
+                        default: op
+                    cm.command.kick:
+                        description: "kick player from the arena"
+                        default: op
+                    cm.command.lobby:
+                        description: "send player to lobby"
+                        default: true
+                    cm.command.set:
+                        description: "allow player to edit arenas from the game"
+                        default: op
+            cm.sign:
+                description: "join using signs"
+                default: true
+            cm.acces:
+                description: "allow player to play colormatch"
+                default: true

@@ -1,0 +1,10 @@
+## ColorMatch config
+---
+Language: English
+Prefix: "&9[&cCM&9] "
+#Game lobby location
+lobby:
+    x: 1
+    y: 1
+    z: 1
+    world: ColorMatch
