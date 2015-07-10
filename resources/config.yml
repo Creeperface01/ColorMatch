@@ -1,6 +1,6 @@
 ## ColorMatch config
 ---
-Language: English
+Language: "English"
 Prefix: "&9[&cCM&9] "
 #Game lobby location
 lobby:

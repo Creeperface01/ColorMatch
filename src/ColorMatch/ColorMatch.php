@@ -76,9 +76,11 @@ class ColorMatch extends PluginBase implements Listener{
         }
         if(!is_file($this->getDataFolder()."languages/{$this->cfg->get('Language')}.yml")){
             $this->msg = new Config($this->getDataFolder()."languages/English.yml", Config::YAML);
+            $this->getServer()->getLogger()->info("Selected language English");
         }
         else{
             $this->msg = new Config($this->getDataFolder()."languages/{$this->cfg->get('Language')}.yml", Config::YAML);
+            $this->getServer()->getLogger()->info("Selected language {$this->cfg->get('Language')}");
         }
     }
     
@@ -297,6 +299,18 @@ class ColorMatch extends PluginBase implements Listener{
                                 }
                                 $this->ins[$args[1]]->kickPlayer($args[2], $args[3]);
                                 break;
+                            case "setlobby":
+                                if(!$sender->hasPermission('cm.command.setlobby')){
+                                    $sender->sendMessage($this->getMsg('has_not_permission'));
+                                    break;
+                                }
+                                if(isset($args[1])){
+                                    $sender->sendMessage($this->getPrefix().$this->getMsg('setlobby_help'));
+                                    break;
+                                }
+                                $this->setters[strtolower($sender->getName())]['type'] = "mainlobby";
+                                $sender->sendMessage($this->getPrefix().$this->getMsg('break_block'));
+                                break;
                             default:
                                 $sender->sendMessage($this->getPrefix().$this->getMsg('help'));
                         }
@@ -317,7 +331,7 @@ class ColorMatch extends PluginBase implements Listener{
     }
     
     public function getMsg($key){
-        $msg = new Config($this->getDataFolder()."languages/English.yml", Config::YAML);
+        $msg = $this->msg;
         return str_replace("&", "§", $msg->get($key));
     }
     
@@ -359,18 +373,22 @@ class ColorMatch extends PluginBase implements Listener{
             if($this->setters[strtolower($p->getName())]['type'] == "setjoinsign"){
                 $arena->setJoinSign($b->x, $b->y, $b->z, $b->level->getName());
                 $p->sendMessage($this->getPrefix().$this->getMsg('joinsign'));
+                return;
             }
             if($this->setters[strtolower($p->getName())]['type'] == "setreturnsign"){
                 $arena->setReturnSign($b->x, $b->y, $b->z);
                 $p->sendMessage($this->getPrefix().$this->getMsg('returnsign'));
+                return;
             }
             if($this->setters[strtolower($p->getName())]['type'] == "setjoinpos"){
                 $arena->setJoinPos($b->x, $b->y, $b->z);
                 $p->sendMessage($this->getPrefix().$this->getMsg('startpos'));
+                return;
             }
             if($this->setters[strtolower($p->getName())]['type'] == "setlobbypos"){
                 $arena->setLobbyPos($b->x, $b->y, $b->z);
                 $p->sendMessage($this->getPrefix().$this->getMsg('lobbypos'));
+                return;
             }
             if($this->setters[strtolower($p->getName())]['type'] == "setfirstcorner"){
                 $arena->setFirstCorner($b->x, $b->y, $b->z);
@@ -381,14 +399,26 @@ class ColorMatch extends PluginBase implements Listener{
             if($this->setters[strtolower($p->getName())]['type'] == "setsecondcorner"){
                 $arena->setSecondCorner($b->x, $b->z);
                 $p->sendMessage($this->getPrefix().$this->getMsg('second_corner'));
+                return;
             }
             if($this->setters[strtolower($p->getName())]['type'] == "setspecspawn"){
                 $arena->setSpecSpawn($b->x, $b->y, $b->z);
                 $p->sendMessage($this->getPrefix().$this->getMsg('spectatorspawn'));
+                return;
             }
             if($this->setters[strtolower($p->getName())]['type'] == "setleavepos"){
                 $arena->setLeavePos($b->x, $b->y, $b->z, $b->level->getName());
                 $p->sendMessage($this->getPrefix().$this->getMsg('leavepos'));
+                return;
+            }
+            if($this->setters[strtolower($p->getName())]['type'] == "mainlobby"){
+                $this->cfg->setNested("lobby.x", $b->x);
+                $this->cfg->setNested("lobby.y", $b->y);
+                $this->cfg->setNested("lobby.z", $b->z);
+                $this->cfg->setNested("lobby.world", $b->level->getName());
+                $p->sendMessage($this->getPrefix().$this->getMsg('mainlobby'));
+                unset($this->setters[strtolower($p->getName())]['type']);
+                return;
             }
         }
     }
