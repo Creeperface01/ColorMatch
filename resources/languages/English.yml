@@ -122,4 +122,3 @@ help_minplayers: "\n- &2minplayers &b[count] &l&5»&r&f Set players minimal coun
 ######################
 break_block: "&aNow break a block"
 break_sign: "&aNow break a sign"
-invalid_args: "invalid_arguments\n&6use: &a/cm help"
