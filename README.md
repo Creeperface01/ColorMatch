@@ -1,2 +1,2 @@
 # ColorMatch
-ColorMatch minigame ported to pocketmine
+WoolJumper minigame ported to pocketmine
