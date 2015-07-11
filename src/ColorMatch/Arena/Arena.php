@@ -21,6 +21,10 @@ use pocketmine\level\Position;
 use pocketmine\block\Block;
 use pocketmine\entity\Effect;
 use pocketmine\item\Item;
+use ColorMatch\Events\PlayerJoinArenaEvent;
+use ColorMatch\Events\PlayerLoseArenaEvent;
+use ColorMatch\Events\PlayerWinArenaEvent;
+use ColorMatch\Events\ArenaColorChangeEvent;
 
 class Arena implements Listener{
 
@@ -130,6 +134,10 @@ class Arena implements Listener{
             }
             if(!$this->plugin->getServer()->isLevelLoaded($this->data['arena']['arena_world'])){
                 $this->plugin->getServer()->loadLevel($this->data['arena']['arena_world']);
+            }
+            $this->plugin->getServer()->getPluginManager()->callEvent($event = new PlayerJoinArenaEvent($this->plugin, $p, $this));
+            if($event->isCancelled()){
+                return;
             }
             $this->saveInv($p);
             $p->teleport(new Position($this->data['arena']['lobby_position_x'], $this->data['arena']['lobby_position_y'], $this->data['arena']['lobby_position_z'], $this->plugin->getServer()->getLevelByName($this->data['arena']['arena_world'])));
@@ -362,6 +370,7 @@ class Arena implements Listener{
                 $e->setDeathMessage("");
             }
             if($this->getPlayerMode($p) === 1){
+                $this->plugin->getServer()->getPluginManager()->callEvent($event = new PlayerLoseArenaEvent($this->plugin, $p, $this));
                 $e->setDeathMessage("");
                 $e->setDrops([]);
                 $ingame = array_merge($this->lobbyp, $this->ingamep, $this->spec);
@@ -403,6 +412,10 @@ class Arena implements Listener{
     }
     
     public function broadcastResults(){
+        if($this->plugin->getServer()->getPlayer($this->winners[1]) instanceof Player){
+            $this->giveReward($this->plugin->getServer()->getPlayer($this->winners[1]));
+            $this->plugin->getServer()->getPluginManager()->callEvent($event = new PlayerWinArenaEvent($this->plugin, $this->plugin->getServer()->getPlayer(), $this));
+        }
         if(!isset($this->winners[1])) $this->winners[1] = "---";
         if(!isset($this->winners[2])) $this->winners[2] = "---";
         if(!isset($this->winners[3])) $this->winners[3] = "---";
@@ -418,7 +431,11 @@ class Arena implements Listener{
     }
     
     public function setColor($color){
-        $this->currentColor = $color;
+        $this->plugin->getServer()->getPluginManager()->callEvent($event = new ArenaColorChangeEvent($this->plugin, $this, $this->currentColor, $color));
+        if($event->isCancelled()){
+            return;
+        }
+        $this->currentColor = $event->getNewColor();
         foreach($this->ingamep as $p){
             $p->getInventory()->setItem(0, Item::get($this->getBlock(), $color, 1));
             $p->getInventory()->setItem(1, Item::get($this->getBlock(), $color, 1));
@@ -483,6 +500,34 @@ class Arena implements Listener{
     public function checkWinners(Player $p){
         if(count($this->ingamep) <= 3){
             $this->winners[count($this->ingamep)] = $p->getName();
+        }
+    }
+    
+    public function giveReward(Player $p){
+        if($this->data['arena']['item_reward'] !== null){
+            foreach(explode(',', str_replace(' ', '', $this->data['arena']['item_reward'])) as $item){
+                list($id, $damage, $count) = explode(':', $item);
+                $p->getInventory()->addItem(Item::get($id, $damage, $count));
+            }
+        }
+        if($this->data['arena']['money_reward'] !== null && $this->plugin->economy !== null){
+            $money = $this->data['arena']['money_reward'];
+            $ec = $this->plugin->economy;
+            switch($ec->getName()){
+                case "EconomyAPI":
+                    $ec->addMoney($p->getName(), $money);
+                    break;
+                case "PocketMoney":
+                    $ec->setMoney($p->getName(), $ec->getMoney($p->getName()));
+                    break;
+                case "MassiveEconomy":
+                    $ec->setMoney($p->getName(), $ec->getMoney($p->getName()));
+                    break;
+                case "GoldStd":
+                    $ec->giveMoney($p, $money);
+                    break;
+            }
+            $p->sendMessage($this->plugin->getPrefix().str_replace('%1', $money, $this->plugin->getMsg('get_money')));
         }
     }
 }

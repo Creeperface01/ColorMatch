@@ -17,6 +17,8 @@ ingame: "&cgame is in progress"
 enable_setup_mode: "&6You are now in setup mode\n&a-> leave using  &l&odone"
 disable_setup_mode: '&aArena saved'
 arena_in_setup: "&cArena is in setup mode!"
+#reward for win
+get_money: "&aYou won %1 money!"
 #end game message
 #create new line using "\n"
 end_game: "&6&l---------------------&r\n&5arena %1 ended\n&4winners:\n&a1. %2\n&e2. %3\n&c3. %4\n&6&l---------------------"

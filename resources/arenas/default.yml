@@ -78,3 +78,7 @@ arena:
     finish_msg_levels: game
     #enable time cycle - true / day / night / [ticks]
     time: day
+    #Item reward for win put ID:DAMAGE:COUNT ->  17:5:1,17:4:9,4:0:1  
+    item_reward: 
+    #coin rewars put number of money
+    money_reward: 

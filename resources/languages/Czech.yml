@@ -17,6 +17,8 @@ ingame: "&cV teto arene je hra v plnem proudu"
 enable_setup_mode: "&6Nyni si v nastavovacim modu\n&a-> pro opusteni pouzij &l&odone"
 disable_setup_mode: '&aArena ulozena!'
 arena_in_setup: "&cArena se nastavuje!"
+#reward for win
+get_money: "&aZiskal jsi %1 penez!"
 #end game message
 #create new line using "\n"
 end_game: "&6&l---------------------&r\n&5Arena %1 skoncila\n&4Vitezove:\n&a1. %2\n&e2. %3\n&c3. %4\n&6&l---------------------"
