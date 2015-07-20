@@ -5,7 +5,7 @@ type: "classic"
 #material wool or clay
 material: "wool"
 #if enabled is false arena won´t load.
-enabled: false
+enabled: "false"
 #signs
 signs:
     join_sign_x: 89
@@ -72,13 +72,11 @@ arena:
     starting_time: 30
     #[seconds]
     color_wait_time: 5
-    #Tip send when color change
-    send_color_tip: true
     #Arena finish message message levels example: world,cm,colormatch,lobby
-    finish_msg_levels: game
+    finish_msg_levels: "game"
     #enable time cycle - true / day / night / [ticks]
-    time: day
+    time: "day"
     #Item reward for win put ID:DAMAGE:COUNT ->  17:5:1,17:4:9,4:0:1  
-    item_reward: 
+    item_reward: 0:0:0
     #coin rewars put number of money
-    money_reward: 
+    money_reward: 0

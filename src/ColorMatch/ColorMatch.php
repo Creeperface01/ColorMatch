@@ -97,7 +97,7 @@ class ColorMatch extends PluginBase implements Listener{
                 $this->arenas[basename($file, ".yml")]['enable'] = false;
             }
             else{
-                if($this->checkFile($arena)){
+                if($this->checkFile($arena) === true){
                     $fname = basename($file);
                     $this->setArenasData($arena, basename($file, ".yml"));
                     $this->getLogger()->info("$fname - ".TextFormat::GREEN."checking sucessful");
@@ -426,17 +426,6 @@ class ColorMatch extends PluginBase implements Listener{
             }
         }
     }
-    //for Freezecraft only
-    /*public function onBlockPlace(BlockPlaceEvent $e){
-        if(!$e->getPlayer()->isOp()){
-            $e->setCancelled(true);
-        }
-    }
-    //for freezecraft only
-    public function onJoin(PlayerJoinEvent $e){
-        $p = $e->getPlayer();
-        $p->teleport($this->getServer()->getDefaultLevel()->getSpawnLocation());
-    }*/
     
     public function onChat(PlayerChatEvent $e){
         $p = $e->getPlayer();
@@ -515,6 +504,9 @@ class ColorMatch extends PluginBase implements Listener{
                     $p->sendMessage("§9--- §6§lColorMatch setup help§l 1/3§9 ---§r§f".$help1);
                     return;
                 }
+            }
+            switch(trim(strtolower($args[0]))){
+                
             }
             if(count(explode(' ', $msg)) !== 2 && strpos($msg, 'statusline') !== 0){
                 $p->sendMessage($this->getPrefix().$this->getMsg('invalid_arguments'));
@@ -643,15 +635,11 @@ class ColorMatch extends PluginBase implements Listener{
     
     public function onQuit(PlayerQuitEvent $e){
         $p = $e->getPlayer();
-        //for FC only
-        //$p->teleportImmediate($this->getServer()->getDefaultLevel()->getSpawnLocation());
         $this->unsetPlayers($p);
     }
     
     public function onKick(PlayerKickEvent $e){
         $p = $e->getPlayer();
-        //for FC only
-        //$p->teleportImmediate($this->getServer()->getDefaultLevel()->getSpawnLocation());
         $this->unsetPlayers($p);
     }
     

@@ -135,7 +135,7 @@ class Arena implements Listener{
             if(!$this->plugin->getServer()->isLevelLoaded($this->data['arena']['arena_world'])){
                 $this->plugin->getServer()->loadLevel($this->data['arena']['arena_world']);
             }
-            $this->plugin->getServer()->getPluginManager()->callEvent($event = new PlayerJoinArenaEvent($this->plugin, $p, $this));
+            //$this->plugin->getServer()->getPluginManager()->callEvent($event = new PlayerJoinArenaEvent($this->plugin, $p, $this));
             if($event->isCancelled()){
                 return;
             }
@@ -370,7 +370,7 @@ class Arena implements Listener{
                 $e->setDeathMessage("");
             }
             if($this->getPlayerMode($p) === 1){
-                $this->plugin->getServer()->getPluginManager()->callEvent($event = new PlayerLoseArenaEvent($this->plugin, $p, $this));
+                //$this->plugin->getServer()->getPluginManager()->callEvent($event = new PlayerLoseArenaEvent($this->plugin, $p, $this));
                 $e->setDeathMessage("");
                 $e->setDrops([]);
                 $ingame = array_merge($this->lobbyp, $this->ingamep, $this->spec);
@@ -414,7 +414,7 @@ class Arena implements Listener{
     public function broadcastResults(){
         if($this->plugin->getServer()->getPlayer($this->winners[1]) instanceof Player){
             $this->giveReward($this->plugin->getServer()->getPlayer($this->winners[1]));
-            $this->plugin->getServer()->getPluginManager()->callEvent($event = new PlayerWinArenaEvent($this->plugin, $this->plugin->getServer()->getPlayer(), $this));
+            //$this->plugin->getServer()->getPluginManager()->callEvent($event = new PlayerWinArenaEvent($this->plugin, $this->plugin->getServer()->getPlayer(), $this));
         }
         if(!isset($this->winners[1])) $this->winners[1] = "---";
         if(!isset($this->winners[2])) $this->winners[2] = "---";
@@ -431,7 +431,7 @@ class Arena implements Listener{
     }
     
     public function setColor($color){
-        $this->plugin->getServer()->getPluginManager()->callEvent($event = new ArenaColorChangeEvent($this->plugin, $this, $this->currentColor, $color));
+        //$this->plugin->getServer()->getPluginManager()->callEvent($event = new ArenaColorChangeEvent($this->plugin, $this, $this->currentColor, $color));
         if($event->isCancelled()){
             return;
         }
