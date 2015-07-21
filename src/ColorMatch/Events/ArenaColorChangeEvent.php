@@ -7,15 +7,18 @@ use ColorMatch\ColorMatch;
 use ColorMatch\Arena\Arena;
 use pocketmine\event\Cancellable;
 
-class PlayerJoinArenaEvent extends PluginEvent implements Cancellable{
+class ArenaColorChangeEvent extends PluginEvent implements Cancellable{
     protected $arena;
-    protected $oldcolor;
-    protected $newcolor;
+    protected $oldColor;
+    protected $newColor;
     
-    public function __construct(ColorMatch $plugin, Arena $arena, $oldcolor, $newColor){
+    public static $handlerList = null;
+    
+    public function __construct(ColorMatch $plugin, Arena $arena, $oldColor, $newColor){
         parent::__construct($plugin);
-        $this->player = $player;
         $this->arena = $arena;
+        $this->newColor = $newColor;
+        $this->oldColor = $oldColor;
     }
     
     
@@ -28,11 +31,11 @@ class PlayerJoinArenaEvent extends PluginEvent implements Cancellable{
     }
     
     public function getNewColor(){
-        return $this->newcolor;
+        return $this->newColor;
     }
     
     public function getOldColor(){
-        return $this->oldcolor;
+        return $this->oldColor;
     }
     //color is 0-15
     public function setNewColor($color){
