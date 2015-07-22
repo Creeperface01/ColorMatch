@@ -278,7 +278,7 @@ class ColorMatch extends PluginBase implements Listener{
                                     $sender->sendMessage($this->getPrefix().$this->getMsg('arena_doesnt_exist'));
                                     break;
                                 }
-                                if($this->ins[$args[1]->game !== 1]){
+                                if($this->ins[$args[1]]->game !== 1){
                                     $sender->sendMessage($this->getPrefix().$this->getMsg('arena_not_running'));
                                     break;
                                 }
