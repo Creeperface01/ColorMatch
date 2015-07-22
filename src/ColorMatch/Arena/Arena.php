@@ -21,6 +21,7 @@ use pocketmine\level\Position;
 use pocketmine\block\Block;
 use pocketmine\entity\Effect;
 use pocketmine\item\Item;
+use pocketmine\level\Level;
 use ColorMatch\Events\PlayerJoinArenaEvent;
 use ColorMatch\Events\PlayerLoseArenaEvent;
 use ColorMatch\Events\PlayerWinArenaEvent;
@@ -424,8 +425,11 @@ class Arena implements Listener{
         $msg = str_replace($vars, $replace, $this->plugin->getMsg('end_game'));
         $levels = explode(",", $this->data['arena']['finish_msg_levels']);
         foreach($levels as $level){
-            foreach($this->plugin->getServer()->getLevelByName($level)->getPlayers() as $p){
-                $p->sendMessage($msg);
+            $lvl = $this->plugin->getServer()->getLevelByName($level);
+            if($lvl instanceof Level){
+                foreach($lvl->getPlayers() as $p){
+                    $p->sendMessage($msg);
+                }
             }
         }
     }
@@ -507,8 +511,13 @@ class Arena implements Listener{
         if(isset($this->data['arena']['item_reward'])){
         if($this->data['arena']['item_reward'] !== null){
             foreach(explode(',', str_replace(' ', '', $this->data['arena']['item_reward'])) as $item){
-                list($id, $damage, $count) = explode(':', $item);
-                $p->getInventory()->addItem(Item::get($id, $damage, $count));
+                $exp = explode(':', $item);
+                if(isset($exp[0]) && isset($exp[0]) && isset($exp[0])){
+                    list($id, $damage, $count) = $exp;
+                    if(Item::get($id, $damage, $count) instanceof Item){
+                        $p->getInventory()->addItem(Item::get($id, $damage, $count));
+                    }
+                }
             }
         }
         }
