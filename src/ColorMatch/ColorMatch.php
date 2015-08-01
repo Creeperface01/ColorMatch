@@ -508,7 +508,7 @@ class ColorMatch extends PluginBase implements Listener{
             switch(trim(strtolower($args[0]))){
                 
             }
-            if(count(explode(' ', $msg)) !== 2 && strpos($msg, 'statusline') !== 0){
+            if(count(explode(' ', $msg)) >= 3 && strpos($msg, 'statusline') !== 0){
                 $p->sendMessage($this->getPrefix().$this->getMsg('invalid_arguments'));
                 return;
             }
@@ -523,7 +523,7 @@ class ColorMatch extends PluginBase implements Listener{
             }
             elseif(strpos($msg, 'type') === 0){
                 if(substr($msg, 5) === 'classic' || substr($msg, 5) === 'furious' || substr($msg, 5) === 'stoned'){
-                    $arena->setType(substr($msg, 4));
+                    $arena->setType(substr($msg, 5));
                     $p->sendMessage($this->getPrefix().$this->getMsg('type'));
                     return;
                 }
