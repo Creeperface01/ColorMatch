@@ -1,5 +1,5 @@
 name: ColorMatch
-version: 1.0
+version: 1.0.2
 api: 1.12.0
 main: ColorMatch\ColorMatch
 author: CreeperFace

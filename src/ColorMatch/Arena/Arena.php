@@ -51,18 +51,7 @@ class Arena implements Listener{
         $this->id = $id;
         $this->plugin = $plugin;
         $this->data = $plugin->arenas[$id];
-        if(!$this->plugin->getServer()->isLevelGenerated($this->data['arena']['arena_world'])){
-            $this->plugin->getServer()->generateLevel($this->data['arena']['arena_world']);
-        }
-        if(!$this->plugin->getServer()->isLevelGenerated($this->data['signs']['join_sign_world'])){
-            $this->plugin->getServer()->generateLevel($this->data['signs']['join_sign_world']);
-        }
-        if(!$this->plugin->getServer()->isLevelGenerated($this->data['arena']['leave_position_world'])){
-            $this->plugin->getServer()->generateLevel($this->data['arena']['leave_position_world']);
-        }
-        if(!$this->plugin->getServer()->isLevelLoaded($this->data['arena']['arena_world'])){
-            $this->plugin->getServer()->loadLevel($this->data['arena']['arena_world']);
-        }
+        $this->checkWorlds();
         if(strtolower($this->data['arena']['time'] !== "true")){
             $this->plugin->getServer()->getLevelByName($this->data['arena']['arena_world'])->setTime(str_replace(['day', 'night'], [6000, 18000], $this->data['arena']['time']));
             $this->plugin->getServer()->getLevelByName($this->data['arena']['arena_world'])->stopTime();
@@ -541,6 +530,27 @@ class Arena implements Listener{
             }
             $p->sendMessage($this->plugin->getPrefix().str_replace('%1', $money, $this->plugin->getMsg('get_money')));
         }
+        }
+    }
+    
+    public function checkWorlds(){
+        if(!$this->plugin->getServer()->isLevelGenerated($this->data['arena']['arena_world'])){
+            $this->plugin->getServer()->generateLevel($this->data['arena']['arena_world']);
+        }
+        if(!$this->plugin->getServer()->isLevelLoaded($this->data['arena']['arena_world'])){
+            $this->plugin->getServer()->loadLevel($this->data['arena']['arena_world']);
+        }
+        if(!$this->plugin->getServer()->isLevelGenerated($this->data['signs']['join_sign_world'])){
+            $this->plugin->getServer()->generateLevel($this->data['signs']['join_sign_world']);
+        }
+        if(!$this->plugin->getServer()->isLevelLoaded($this->data['signs']['join_sign_world'])){
+            $this->plugin->getServer()->loadLevel($this->data['signs']['join_sign_world']);
+        }
+        if(!$this->plugin->getServer()->isLevelGenerated($this->data['arena']['leave_position_world'])){
+            $this->plugin->getServer()->generateLevel($this->data['arena']['leave_position_world']);
+        }
+        if(!$this->plugin->getServer()->isLevelLoaded($this->data['arena']['leave_position_world'])){
+            $this->plugin->getServer()->loadLevel($this->data['arena']['leave_position_world']);
         }
     }
 }
