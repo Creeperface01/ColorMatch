@@ -497,8 +497,7 @@ class Arena implements Listener{
     }
     
     public function giveReward(Player $p){
-        if(isset($this->data['arena']['item_reward'])){
-        if($this->data['arena']['item_reward'] !== null){
+        if(isset($this->data['arena']['item_reward']) && $this->data['arena']['item_reward'] !== null && intval($this->data['arena']['item_reward']) !== 0){
             foreach(explode(',', str_replace(' ', '', $this->data['arena']['item_reward'])) as $item){
                 $exp = explode(':', $item);
                 if(isset($exp[0]) && isset($exp[0]) && isset($exp[0])){
@@ -508,7 +507,6 @@ class Arena implements Listener{
                     }
                 }
             }
-        }
         }
         if(isset($this->data['arena']['money_reward'])){
         if($this->data['arena']['money_reward'] !== null && $this->plugin->economy !== null){

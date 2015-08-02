@@ -77,6 +77,7 @@ arena:
     #enable time cycle - true / day / night / [ticks]
     time: "day"
     #Item reward for win put ID:DAMAGE:COUNT ->  17:5:1,17:4:9,4:0:1  
-    item_reward: 0:0:0
+    #0 if you don´t want reward
+    item_reward: 0
     #coin rewars put number of money
     money_reward: 0

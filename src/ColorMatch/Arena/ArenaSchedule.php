@@ -47,7 +47,7 @@ class ArenaSchedule extends Task{
     public function onRun($currentTick){
         if(strtolower($this->arena->data['signs']['enable_status']) === 'true'){
             $this->updateTime++;
-            if($this->updateTime === $this->arena->data['signs']['sign_update_time']){
+            if($this->updateTime >= $this->arena->data['signs']['sign_update_time']){
                 $vars = ['%alive', '%dead', '%status', '%type', '%max', '&'];
                 $replace = [count(array_merge($this->arena->ingamep, $this->arena->lobbyp)), count($this->arena->deads), $this->arena->getStatus(), $this->arena->data['type'], $this->arena->getMaxPlayers(), "§"];
                 $tile = $this->arena->plugin->getServer()->getLevelByName($this->arena->data['signs']['join_sign_world'])->getTile(new Vector3($this->arena->data['signs']['join_sign_x'], $this->arena->data['signs']['join_sign_y'], $this->arena->data['signs']['join_sign_z']));
