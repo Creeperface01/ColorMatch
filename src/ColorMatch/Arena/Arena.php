@@ -321,6 +321,9 @@ class Arena implements Listener{
     }
     
     public function loadInv(Player $p){
+        if(!$p->isOnline()){
+            return;
+        }
         $p->getInventory()->clearAll();
         foreach($this->plugin->inv[strtolower($p->getName())] as $slot => $i){
             list($id, $dmg, $count) = explode(":", $i);
@@ -445,6 +448,7 @@ class Arena implements Listener{
             $p->getInventory()->setHotbarSlotIndex(5, 5);
             $p->getInventory()->setHotbarSlotIndex(6, 6);
             $p->getInventory()->setHotbarSlotIndex(7, 7);
+            $p->getInventory()->sendContents($p);
         }
     }
     
