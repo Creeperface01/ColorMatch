@@ -1,0 +1,129 @@
+## Russian translation by tankisu01
+---
+join: "Добро пожаловать в Color Match"
+join_others: "%1 присоединился к игре."
+leave: "Покидаем арену..."
+leave_others: "%1 покинул игру."
+arena_doesnt_exist: "&cАрена не существует"
+arena_already_exist: "&cАрена уже существует"
+arena_create: "&eАрена успешно создана!"
+start_game: "&l&1Игра началась!"
+death: "%1 умер! %2 игроков(а) осталось!
+send_to_main_world: "&2возвращение в лобби..."
+starting: "&aигра начнётся через %1 секунд(ы)"
+kick_from_game: "&9Вы били кикнуты из игры из-за %1"
+game_full: "&cАрена заполнена"
+ingame: "&cидёт игра"
+enable_setup_mode: "&6Вы в режиме настройки\n&a-> покиньте, используя команду  &l&odone"
+disable_setup_mode: '&aАрена сохранена!'
+arena_in_setup: "&cАрена в режиме настройки!"
+#награда за игру
+get_money: "&aВы выйграли %1 денег!"
+#сообщение при окончании игры
+#создать новую линию - "\n"
+end_game: "&6&l---------------------&r\n&5на арене %1 игра закончена\n&4победители:\n&a1. %2\n&e2. %3\n&c3. %4\n&6&l---------------------"
+not_enough_players: "&cНедостаточно игроков"
+###################
+#Сообщения команд#
+###################
+has_not_permission: "&cУ вас недостаточно прав для использования команды"
+#неверные аргументы 
+invalid_arguments: "&cНеверные аргументы\n&6используйте: &a&o&lhelp"
+help: "&6используйте /cm help"
+join_help: "&6use /cm join &a[имя арены]"
+leave_help: "&6use /cm leave &a[имя арены]"
+start_help: "&6use /cm start &a[имя арены]"
+stop_help: "&6use /cm stop &a[имя арены]"
+kick_help: "&6use /cm kick &a[имя арены] [имя игрока]"
+set_help: "&6use /cm set &a[имя арены]"
+create_help: "&6use /cm create &a[имя арены]"
+delete_help: "&6use /cm delete &a[имя арены]"
+setlobby_help: "&6используйте: &asetlobby"
+arena_running: "&cНа арене идёт игра"
+use_cmd_in_game: "&6Вы можете использовать эту команду только в игре!"
+arena_not_running: "&6На арене не идёт игра!"
+player_not_exist: "&cИгрок не на арене"
+##########################
+#сообщения об успешной настройке#
+##########################
+joinsign: "&aТабличка входа была обновлена"
+returnsign: "&aТабличка выхода была обновлена"
+startpos: "&aПозиция старта была обнвлена"
+lobbypos: "&aПозиция лобби была обновлена"
+corners: "&aПозиция углов была обновлена"
+first_corner: "&a1-ый угол установлен\n&eТеперь сломайте блок для установки 2-ого угла"
+second_corner: "&aВторой угол был успешно обновлен"
+spectatorspawn: "&aСпаун спектатора был обновлен"
+leavepos: "&aПозиция выхода была обновлена
+mainlobby: "&aПозиция главного лобби была обновлена"
+statusline: "&aЛиния таблички была обновлена"
+type: "&aТип арены был обновлен"
+material: "&aМатериал пола был обновлен"
+allowstatus: "&aТабличка статуса была обновлена"
+signupdatetime: "&aИнтервал обновления таблички был обновлен"
+world: "&aМир арены был обновлён"
+allowspectator: "&aРежим спектатора был обновлен"
+maxtime: "&aМаксимальное время игры было обновлено"
+maxplayers: "&aМаксимальное количество игроков было обновлено"
+minplayers: "&aМинимальное количество игроков было обновлено"
+starttime: "&aВремя старта игры было обновлено"
+colortime: "&aВремя изменения цвета было обновлено"
+time: "&aВремя на арене было успешно обновлено"
+enable: "&aАрена была обновлена"
+########################################
+#messages on help command in setup mode#
+########################################
+statusline_help: "&6используйте : &astatusline &b[линия] [текст]"
+type_help: "&6используйте : &atype &b[classic/furious/stoned]"
+material_help: "&6используйте : &amaterial &b[wool/clay]"
+allowstatus_help: "&6используйте : &aallowstatus &b[true/false]"
+signupdatetime_help: "&6используйте : &asignupdatetime &b[секунд]"
+world_help: "& 6используйте : &aworld &b[имя мира]"
+allowspectator_help: "&6используйте : &aallowspectator &b[true/false]"
+maxtime_help: "&6используйте : &amaxtime &b[секунд]"
+maxplayers_help: "&6используйте : &amaxplayers &b[кол-во]"
+minplayers_help: "&6используйте : &aminplayers &b[кол-во]"
+starttime_help: "&6используйте : &astarttime &b[секунд]"
+colortime_help: "&6используйте : &acolortime &b[секунд]"
+time_help: "&6используйте: &atime &b[true/day/night/TICKS]"
+enable_help: "&6исаользуйте: &aenable &b[true/false]"
+##################################
+#ColorMatch help command messages#
+##################################
+lobby: "\n- &2/cm lobby &l&5»&r&f Телепортирует в лобби"
+onleave: "\n- &2/cm leave &l&5»&r&f Покинуть арену"
+onjoin: "\n- &2/cm join &b[имя арены] &l&5»&r&f Войти на арену"
+start: "\n- &2/cm start &b[имя арены] &l&5»&r&f Принудительно запускает игру"
+stop: "\n- &2/cm stop &b[иия арены] &l&5»&r&f Принудительно останавливает игру"
+kick: "\n- &2/cm kick &b[имя арены] [имя игрока] [причина]&l&5»&r&f Кикает игрока из игры"
+set: "\n- &2/cm set &b[имя арены] &l&5»&r&f Настраивает или изменяет арену
+delete: "\n- &2/cm delete &b[имя арены] &l&5»&r&f Удаляет существующую арену"
+create: "\n- &2/cm create &b[имя арены]&l&5»&r&f Создаёт новую арену"
+########################################
+#arena setup mode help command messages#
+########################################
+help_joinsign: "\n- &2joinsign &l&5»&r&f Устанавливает табличку входа в игру"
+help_returnsign: "\n- &2returnsign &l&5»&r&f Устанавливает табличку выхода из игры"
+help_startpos: "\n- &2startpos &l&5»&r&f Устанавливает позицию старта игры"
+help_lobbypos: "\n- &2lobbypos &l&5»&r&f Устанавливает позицию лобби"
+help_corners: "\n- &2corners &l&5»&r&f Устанавливает углы пола"
+help_spectatorspawn: "\n- &2spectatorspawn &l&5»&r&f Устанавливает спаун спектаторов"
+help_leavepos: "\n- &2leavepos &l&5»&r&f Устанавливает позицию выхода из игры(место телепортирования)"
+help_time: "\n- &2time &b[true/day/night/ticks] &l&5»&r&f Устанавливает время на арене"
+help_colortime: "\n- &2colortime &b[секунд] &l&5»&r&f Устанавливает время смены цвета"
+help_type: "\n- &2type &b[classic/furious/stoned] &l&5»&r&f Устанавливает тип арены"
+help_material: "\n- &2material &b[wool/clay] &l&5»&r&f Устанавливает тип пола"
+help_allowstatus: "\n- &2allowstatus &b[true/false] &l&5»&r&f Включает/выключает статус на табличке входа"
+help_world: "\n- &2world &b[имя мира] &l&5»&r&f Устанавливает мир арены"
+help_statusline: "\n- &2statusline &b[линия (1-4)] [текст] &l&5»&r&f Устанавливает
+линию статуса"
+help_allowspectator: "\n- &2allowspectator &b[true/false] &l&5»&r&f Включает/Выключает режим наблюдения"
+help_signupdatetime: "\n- &2signupdatetime &b[секунд] &l&5»&r&f Устанавливает время обновления таблички"
+help_maxtime: "\n- &2maxtime &b[секунд] &l&5»&r&f Устанавливает максимальное время игры"
+help_maxplayers: "\n- &2maxplayers &b[кол-во] &l&5»&r&f Устанавливает максимальное кол-во игроков в игре"
+help_minplayers: "\n- &2minplayers &b[кол-во] &l&5»&r&f Устанавливает минимальное количество игроков для начала игры"
+######################
+#other setup messages#
+######################
+break_block: "&aТеперь сломайте блок"
+break_sign: "&aТеперь сломайте табличку"
