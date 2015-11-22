@@ -78,6 +78,9 @@ class ColorMatch extends PluginBase implements Listener{
         if(!is_file($this->getDataFolder()."languages/Czech.yml")){
                 $this->saveResource("languages/Czech.yml");
         }
+        if(!is_file($this->getDataFolder()."languages/Russian.yml")){
+                $this->saveResource("languages/Russian.yml");
+        }
         if(!is_file($this->getDataFolder()."languages/{$this->cfg->get('Language')}.yml")){
             $this->msg = new Config($this->getDataFolder()."languages/English.yml", Config::YAML);
             $this->getServer()->getLogger()->info("Selected language English");
