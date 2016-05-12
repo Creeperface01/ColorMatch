@@ -1,0 +1,23 @@
+#server spawn
+main_lobby:
+  x: 0
+  y: 0
+  z: 0
+  world: "world"
+
+#players count, required to start
+min_players: 4
+
+#max player count
+max_players: 12
+
+color_change_interval: 5
+
+#max game tam in seconds
+max_game_time: 600
+
+#every player is immediately teleported to the arena after join. (usefull for servers with bungeecord)
+directjoin: false
+
+#starting cooldown in seconds
+start_time: 30

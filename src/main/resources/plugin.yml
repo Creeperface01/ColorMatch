@@ -1,0 +1,33 @@
+name: ColorMatch
+version: "1.0"
+api: ["1.0.0"]
+main: ColorMatch.ColorMatch
+author: "CreeperFace"
+description: "ColorMatch minigame for nukkit"
+
+commands:
+  colormatch:
+    description: "main ColorMatch command"
+    permission: "colormatch.command"
+    default: "op"
+    aliases: ["cm"]
+
+permissions:
+  colormatch.joinfullarena:
+    description: "allows player to join to full arenas"
+    default: op
+  colormatch.sign.create:
+    description: "allows player to create join sign"
+    default: op
+  colormatch.sign.break:
+    description: "allows player to remove join sign"
+    default: op
+  colormatch.sign.use:
+    description: "allows player to use join sign"
+    default: true
+  colormatch.command.start:
+    description: "allows player to force start the arena"
+    default: op
+  colormatch.command.help:
+    description: "allows player to see colormatch help"
+    default: true
