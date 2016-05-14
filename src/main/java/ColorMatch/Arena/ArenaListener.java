@@ -17,7 +17,6 @@ import cn.nukkit.event.player.*;
 import cn.nukkit.utils.TextFormat;
 import main.java.ColorMatch.ColorMatch;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
@@ -159,7 +158,7 @@ public class ArenaListener implements Listener {
         Set<CommandSender> recipients = e.getRecipients();
 
         if (plugin.inArena(p)) {
-            msg = TextFormat.GRAY + "[" + TextFormat.GREEN + "GAME" + TextFormat.GRAY + "] " + TextFormat.WHITE + TextFormat.RESET;
+            msg = TextFormat.GRAY + "[" + TextFormat.GREEN + "PHASE_GAME" + TextFormat.GRAY + "] " + TextFormat.WHITE + TextFormat.RESET;
         } else if (plugin.isSpectator(p)) {
             msg = TextFormat.GRAY + "[" + TextFormat.YELLOW + "SPECTATOR" + TextFormat.GRAY + "] " + TextFormat.WHITE + TextFormat.RESET;
         } else {
@@ -197,12 +196,15 @@ public class ArenaListener implements Listener {
             }
 
             if (plugin.inArena(p)) {
-                if (!allowedCauses.contains(cause)) {
+                if (plugin.phase == Arena.PHASE_LOBBY) {
+                    e.setCancelled();
+                    return;
+                } else if (!allowedCauses.contains(cause)) {
                     e.setCancelled();
                     return;
                 } else if (e.getFinalDamage() >= p.getHealth()) {
                     e.setCancelled();
-                    onDeath(p);
+                    plugin.onDeath(p);
                     return;
                 }
             }
@@ -256,7 +258,12 @@ public class ArenaListener implements Listener {
         }
     }
 
-    public void onDeath(Player p) {
+    @EventHandler
+    public void onFoodChange(PlayerFoodLevelChangeEvent e) {
+        Player p = e.getPlayer();
 
+        if (plugin.inArena(p) || plugin.isSpectator(p)) {
+            e.setCancelled();
+        }
     }
 }

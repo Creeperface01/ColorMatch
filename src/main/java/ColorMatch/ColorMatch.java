@@ -21,9 +21,8 @@ public class ColorMatch extends PluginBase {
 
     @Override
     public void onEnable() {
-        this.getDataFolder().mkdirs();
+        new File(this.getDataFolder(), "arenas").mkdirs();
         this.saveResource("config.yml");
-        this.saveResource("arenas");
 
         this.conf = new MainConfiguration();
         if (!this.conf.init(this.getConfig())) {
@@ -46,7 +45,7 @@ public class ColorMatch extends PluginBase {
 
     private void registerArenas() {
         this.getLogger().info(getPrefix() + TextFormat.GREEN + "Loading arenas...");
-        File arenas = new File(this.getDataFolder() + "arenas");
+        File arenas = new File(this.getDataFolder(), "arenas");
 
         if (!arenas.isDirectory()) {
             this.getLogger().info(getPrefix() + TextFormat.GREEN + "No arenas found");
@@ -60,14 +59,15 @@ public class ColorMatch extends PluginBase {
             }
         });
 
-        if (files == null) {
+        if (files == null || files.length == 0) {
             this.getLogger().info(getPrefix() + TextFormat.GREEN + "No arenas found");
             return;
         }
 
         for (File file : files) {
             Config config = new Config(file, Config.YAML);
-            String name = file.getName().toLowerCase().trim();
+            String fileName = file.getName().toLowerCase().trim();
+            String name = fileName.substring(0, fileName.length() - 4);
 
             if (registerArena(name, config)) {
                 this.getLogger().info(TextFormat.GRAY + file.getName() + TextFormat.GREEN + " load successful");

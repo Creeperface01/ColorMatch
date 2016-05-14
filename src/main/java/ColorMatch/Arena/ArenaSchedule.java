@@ -20,7 +20,7 @@ public class ArenaSchedule implements Runnable {
     public boolean floor = false;
 
     public void run() {
-        if (plugin.getPhase() == Arena.GAME) {
+        if (plugin.getPhase() == Arena.PHASE_GAME) {
             game();
         } else {
             lobby();

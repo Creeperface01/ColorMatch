@@ -8,6 +8,7 @@ import cn.nukkit.inventory.PlayerInventory;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.potion.Effect;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import lombok.Getter;
@@ -21,11 +22,11 @@ import java.util.Random;
 
 public class Arena extends ArenaManager implements Listener {
 
-    public static final int LOBBY = 0;
-    public static final int GAME = 1;
+    public static final int PHASE_LOBBY = 0;
+    public static final int PHASE_GAME = 1;
 
     @Getter
-    protected int phase = LOBBY;
+    protected int phase = PHASE_LOBBY;
 
     @Getter
     protected boolean enabled = false;
@@ -65,6 +66,7 @@ public class Arena extends ArenaManager implements Listener {
         this.plugin.getServer().getPluginManager().registerEvents(listener, plugin);
         scheduler.id = this.plugin.getServer().getScheduler().scheduleRepeatingTask(scheduler, 20).getTaskId();
         this.enabled = true;
+        this.updateJoinSign();
         return true;
     }
 
@@ -72,6 +74,7 @@ public class Arena extends ArenaManager implements Listener {
         HandlerList.unregisterAll(listener);
         this.plugin.getServer().getScheduler().cancelTask(scheduler.getId());
         enabled = false;
+        updateJoinSign();
         return true;
     }
 
@@ -84,12 +87,18 @@ public class Arena extends ArenaManager implements Listener {
             return;
         }
 
+        Effect effect = getGameEffect();
+
         for (Player p : players.values()) {
             p.teleport(getStartPos());
             p.sendMessage(ColorMatch.getPrefix() + TextFormat.AQUA + "Game started!");
+
+            if (effect != null) {
+                p.addEffect(effect.clone());
+            }
         }
 
-        this.phase = GAME;
+        this.phase = PHASE_GAME;
         updateJoinSign();
     }
 
@@ -98,7 +107,11 @@ public class Arena extends ArenaManager implements Listener {
             removeFromArena(p);
         }
 
-        this.phase = LOBBY;
+        for (Player p : spectators.values()) {
+            removeSpectator(p);
+        }
+
+        this.phase = PHASE_LOBBY;
         updateJoinSign();
         resetFloor();
     }
@@ -108,7 +121,7 @@ public class Arena extends ArenaManager implements Listener {
             winners.add(this.players.values().toArray(new Player[1])[0]);
         }
 
-        String message = "§6§l---------------------§r\n§5arena " + getName() + " ended\n§4winners:\n§a1. %2\n§e2. %3\n&c3. %4\n§6§l---------------------";
+        String message = "§6§l---------------------§r\n§5arena " + getName() + " ended\n§4winners:\n§a1. %2\n§e2. %3\n§c3. %4\n§6§l---------------------";
 
         int i = 2;
 
@@ -126,7 +139,7 @@ public class Arena extends ArenaManager implements Listener {
     }
 
     public void addToArena(Player p) {
-        if (phase == GAME) {
+        if (phase == PHASE_GAME) {
             this.addSpectator(p);
             return;
         }
@@ -136,18 +149,31 @@ public class Arena extends ArenaManager implements Listener {
             return;
         }
 
-        String msg = ColorMatch.getPrefix() + TextFormat.YELLOW + p.getDisplayName() + TextFormat.GRAY + " has joined (" + (TextFormat.BLUE + players.size() + 1) + TextFormat.YELLOW + "/" + TextFormat.BLUE + plugin.conf.getMaxPlayers();
-        for (Player pl : players.values()) {
-            pl.sendMessage(msg);
-        }
+        messageArenaPlayers(ColorMatch.getPrefix() + TextFormat.YELLOW + p.getDisplayName() + TextFormat.GRAY + " has joined (" + (TextFormat.BLUE + players.size() + 1) + TextFormat.YELLOW + "/" + TextFormat.BLUE + plugin.conf.getMaxPlayers());
 
         this.players.put(p.getName().toLowerCase(), p);
         updateJoinSign();
 
+        resetPlayer(p);
         p.teleport(getStartPos());
         p.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Joining to arena " + TextFormat.YELLOW + this.name + TextFormat.GRAY + "...");
 
         checkLobby();
+    }
+
+    public void onDeath(Player p) {
+        messageArenaPlayers(p.getDisplayName() + TextFormat.GRAY + " died!  " + TextFormat.AQUA + players.size() + TextFormat.GRAY + " players left");
+
+        resetPlayer(p);
+
+        players.remove(p.getName().toLowerCase());
+        if (this.players.size() <= 2) {
+            this.winners.add(p);
+        }
+
+        checkAlive();
+
+        addSpectator(p);
     }
 
     public void removeFromArena(Player p) {
@@ -155,10 +181,7 @@ public class Arena extends ArenaManager implements Listener {
         updateJoinSign();
         resetPlayer(p);
 
-        String msg = ColorMatch.getPrefix() + TextFormat.YELLOW + p.getDisplayName() + TextFormat.GRAY + " has left (" + (TextFormat.BLUE + players.size() + 1) + TextFormat.YELLOW + "/" + TextFormat.BLUE + plugin.conf.getMaxPlayers();
-        for (Player pl : players.values()) {
-            pl.sendMessage(msg);
-        }
+        messageArenaPlayers(ColorMatch.getPrefix() + TextFormat.YELLOW + p.getDisplayName() + TextFormat.GRAY + " has left (" + (TextFormat.BLUE + players.size() + 1) + TextFormat.YELLOW + "/" + TextFormat.BLUE + plugin.conf.getMaxPlayers());
 
         if (p.isOnline()) {
             p.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Leaving arena...");
@@ -166,7 +189,7 @@ public class Arena extends ArenaManager implements Listener {
 
         p.teleport(plugin.conf.getLobby());
 
-        if (phase == GAME) {
+        if (phase == PHASE_GAME) {
             if (this.players.size() <= 2) {
                 this.winners.add(p);
             }
@@ -176,6 +199,7 @@ public class Arena extends ArenaManager implements Listener {
     }
 
     public void addSpectator(Player p) {
+        resetPlayer(p);
         p.teleport(getSpectatorPos());
         p.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Joining to as spectator...");
         this.spectators.put(p.getName().toLowerCase(), p);

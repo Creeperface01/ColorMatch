@@ -1,7 +1,7 @@
 name: ColorMatch
 version: "1.0"
 api: ["1.0.0"]
-main: ColorMatch.ColorMatch
+main: main.java.ColorMatch.ColorMatch
 author: "CreeperFace"
 description: "ColorMatch minigame for nukkit"
 

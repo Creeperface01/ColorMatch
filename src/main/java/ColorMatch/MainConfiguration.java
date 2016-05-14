@@ -33,13 +33,12 @@ public class MainConfiguration {
     public boolean init(Config cfg) {
         Server server = Server.getInstance();
 
-
         minPlayers = cfg.getInt("min_players", 4);
         maxPlayers = cfg.getInt("max_players", 12);
         maxGameTime = cfg.getInt("max_game_time", 600);
         startTime = cfg.getInt("start_time", 30);
 
-        String name = cfg.getString("lobby.world");
+        String name = cfg.getString("lobby.world", server.getDefaultLevel().getName());
 
         Level level = server.getLevelByName(name);
 

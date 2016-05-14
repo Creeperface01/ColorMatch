@@ -47,7 +47,7 @@ public class Configuration {
         String level = cfg.getString("arena_world");
 
         //arena level
-        if (server.getLevelByName(level) == null && !server.loadLevel(level)) {
+        if (level.trim().equals("") || (server.getLevelByName(level) == null && !server.loadLevel(level))) {
             if (!server.generateLevel(level, 0, Generator.getGenerator("FLAT"))) {
                 server.getLogger().warning(ColorMatch.getPrefix() + "An error occurred while loading level " + level + " in arena " + ((Arena) this).getName());
                 return false;
@@ -59,7 +59,7 @@ public class Configuration {
         //join sign level
         String joinLevel = cfg.getString("join_sign.world");
 
-        if (server.getLevelByName(joinLevel) == null && !server.loadLevel(joinLevel)) {
+        if (joinLevel.trim().equals("") || (server.getLevelByName(joinLevel) == null && !server.loadLevel(joinLevel))) {
             if (!server.generateLevel(joinLevel, 0, Generator.getGenerator("FLAT"))) {
                 server.getLogger().warning(ColorMatch.getPrefix() + "An error occurred while loading level " + joinLevel + " in arena " + ((Arena) this).getName());
                 return false;
@@ -72,7 +72,7 @@ public class Configuration {
         spectatorPos = new Position(cfg.getInt("spectator_position.x") + 0.5, cfg.getInt("spectator_position.y"), cfg.getInt("spectator_position.z") + 0.5, this.level);
         floorPos = new Position(cfg.getInt("floor_position.x") + 0.5, cfg.getInt("floor_position.y"), cfg.getInt("floor_position.z") + 0.5, this.level);
         radius = cfg.getInt("floor_radius", 4);
-        int type = cfg.getInt("floor_radius");
+        int type = cfg.getInt("type");
 
         if (type < 0 || type > 3) {
             server.getLogger().warning(ColorMatch.getPrefix() + "wrong arena type in arena " + ((Arena) this).getName());
@@ -80,7 +80,6 @@ public class Configuration {
         }
 
         this.floor.setBounds(floorPos.getFloorX() - (radius * 3) - 1, floorPos.getFloorY(), floorPos.getFloorZ() - (radius * 3) - 1, floorPos.getFloorX() + (radius * 3) + 1, floorPos.getFloorY(), floorPos.getFloorZ() + (radius * 3) + 1);
-
         return true;
     }
 }
