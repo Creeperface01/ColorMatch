@@ -5,7 +5,6 @@ import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.utils.Config;
 import lombok.Getter;
-import main.java.ColorMatch.Arena.Arena;
 
 public class MainConfiguration {
 
@@ -16,7 +15,7 @@ public class MainConfiguration {
     private int maxPlayers = 0;
 
     @Getter
-    private Position lobby = null;
+    private Position mainLobby = null;
 
     @Getter
     private int colorChangeInterval = 0;
@@ -38,15 +37,22 @@ public class MainConfiguration {
         maxGameTime = cfg.getInt("max_game_time", 600);
         startTime = cfg.getInt("start_time", 30);
 
-        String name = cfg.getString("lobby.world", server.getDefaultLevel().getName());
+        colorChangeInterval = cfg.getInt("color_change_interval", 5);
+
+        String name = cfg.getString("main_lobby.world", server.getDefaultLevel().getName());
+
+        if (name.trim().equals("")) {
+            name = server.getDefaultLevel().getName();
+        }
 
         Level level = server.getLevelByName(name);
 
         if (level == null && !server.loadLevel(name)) {
-            server.getLogger().warning(ColorMatch.getPrefix() + "level " + name + " doesn't exist");
+            server.getLogger().warning("level " + name + " doesn't exist");
             return false;
         }
 
+        mainLobby = new Position(cfg.getInt("main_lobby.x"), cfg.getInt("main_lobby.y"), cfg.getInt("main_lobby.z"), level);
         return true;
     }
 }

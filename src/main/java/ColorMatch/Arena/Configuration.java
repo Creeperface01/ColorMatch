@@ -7,7 +7,6 @@ import cn.nukkit.level.generator.Generator;
 import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.utils.Config;
 import lombok.Getter;
-import main.java.ColorMatch.ColorMatch;
 
 public class Configuration {
 
@@ -47,39 +46,39 @@ public class Configuration {
         String level = cfg.getString("arena_world");
 
         //arena level
-        if (level.trim().equals("") || (server.getLevelByName(level) == null && !server.loadLevel(level))) {
-            if (!server.generateLevel(level, 0, Generator.getGenerator("FLAT"))) {
-                server.getLogger().warning(ColorMatch.getPrefix() + "An error occurred while loading level " + level + " in arena " + ((Arena) this).getName());
-                return false;
-            }
-
-            this.level = server.getLevelByName(level);
+        if (level.trim().equals("") || (server.getLevelByName(level) == null && !server.loadLevel(level) && !server.generateLevel(level, 0, Generator.getGenerator("FLAT")))) {
+            server.getLogger().error("An error occurred while loading level " + level + " in arena " + ((Arena) this).getName());
+            return false;
         }
+
+        this.level = server.getLevelByName(level);
 
         //join sign level
         String joinLevel = cfg.getString("join_sign.world");
 
         if (joinLevel.trim().equals("") || (server.getLevelByName(joinLevel) == null && !server.loadLevel(joinLevel))) {
             if (!server.generateLevel(joinLevel, 0, Generator.getGenerator("FLAT"))) {
-                server.getLogger().warning(ColorMatch.getPrefix() + "An error occurred while loading level " + joinLevel + " in arena " + ((Arena) this).getName());
+                server.getLogger().error("An error occurred while loading level " + joinLevel + " in arena " + ((Arena) this).getName());
                 return false;
             }
         }
 
-        joinSign = new Position(cfg.getInt("join_sign.x") + 0.5, cfg.getInt("join_sign.y"), cfg.getInt("join_sign.z") + 0.5, server.getLevelByName(joinLevel));
-        leaveSign = new Position(cfg.getInt("leave_sign.x") + 0.5, cfg.getInt("leave_sign.y"), cfg.getInt("leave_sign.z") + 0.5, this.level);
+        joinSign = new Position(cfg.getInt("join_sign.x"), cfg.getInt("join_sign.y"), cfg.getInt("join_sign.z"), server.getLevelByName(joinLevel));
+        leaveSign = new Position(cfg.getInt("leave_sign.x"), cfg.getInt("leave_sign.y"), cfg.getInt("leave_sign.z"), this.level);
         startPos = new Position(cfg.getInt("start_position.x") + 0.5, cfg.getInt("start_position.y"), cfg.getInt("start_position.z") + 0.5, this.level);
         spectatorPos = new Position(cfg.getInt("spectator_position.x") + 0.5, cfg.getInt("spectator_position.y"), cfg.getInt("spectator_position.z") + 0.5, this.level);
         floorPos = new Position(cfg.getInt("floor_position.x") + 0.5, cfg.getInt("floor_position.y"), cfg.getInt("floor_position.z") + 0.5, this.level);
         radius = cfg.getInt("floor_radius", 4);
-        int type = cfg.getInt("type");
+        int type = cfg.getInt("type", 0);
 
         if (type < 0 || type > 3) {
-            server.getLogger().warning(ColorMatch.getPrefix() + "wrong arena type in arena " + ((Arena) this).getName());
+            server.getLogger().error("wrong arena type in arena " + ((Arena) this).getName());
             return false;
         }
 
-        this.floor.setBounds(floorPos.getFloorX() - (radius * 3) - 1, floorPos.getFloorY(), floorPos.getFloorZ() - (radius * 3) - 1, floorPos.getFloorX() + (radius * 3) + 1, floorPos.getFloorY(), floorPos.getFloorZ() + (radius * 3) + 1);
+        this.type = type;
+
+        this.floor.setBounds(floorPos.getFloorX() - (radius * 3) - 2, floorPos.getFloorY(), floorPos.getFloorZ() - (radius * 3) - 2, floorPos.getFloorX() + (radius * 3), floorPos.getFloorY(), floorPos.getFloorZ() + (radius * 3));
         return true;
     }
 }

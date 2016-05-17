@@ -18,8 +18,10 @@ public abstract class ArenaManager extends Configuration {
         return plugin.spectators.containsKey(p.getName().toLowerCase());
     }
 
-    public boolean checkLobby() {
-        return plugin.players.size() >= plugin.plugin.conf.getMinPlayers();
+    public void checkLobby() {
+        if (plugin.players.size() >= plugin.plugin.conf.getMinPlayers()) {
+            plugin.starting = true;
+        }
     }
 
     public void resetPlayer(Player p) {
@@ -29,16 +31,12 @@ public abstract class ArenaManager extends Configuration {
         p.setHealth(20);
         p.getFoodData().setFoodSaturationLevel(20);
         p.getFoodData().setLevel(20);
+        p.extinguish();
     }
 
     public void messageArenaPlayers(String msg) {
-        for (Player p : plugin.players.values()) {
-            p.sendMessage(msg);
-        }
-
-        for (Player p : plugin.spectators.values()) {
-            p.sendMessage(msg);
-        }
+        plugin.players.values().forEach((Player p) -> p.sendMessage(msg));
+        plugin.spectators.values().forEach((Player p) -> p.sendMessage(msg));
     }
 
     /*public boolean checkAlive(){
@@ -63,9 +61,9 @@ public abstract class ArenaManager extends Configuration {
     protected Effect getGameEffect() {
         switch (getType()) {
             case TYPE_BLIND:
-                Effect.getEffect(Effect.BLINDNESS).setDuration(999999999).setVisible(false);
+                return Effect.getEffect(Effect.BLINDNESS).setDuration(999999999).setVisible(false);
             case TYPE_FURIOUS:
-                Effect.getEffect(Effect.SPEED).setAmplifier(4).setDuration(999999999).setVisible(false);
+                return Effect.getEffect(Effect.SPEED).setAmplifier(4).setDuration(999999999).setVisible(false);
             case TYPE_STONED:
                 return Effect.getEffect(Effect.CONFUSION).setDuration(999999999).setVisible(false);
         }

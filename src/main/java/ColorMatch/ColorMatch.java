@@ -44,11 +44,11 @@ public class ColorMatch extends PluginBase {
     }
 
     private void registerArenas() {
-        this.getLogger().info(getPrefix() + TextFormat.GREEN + "Loading arenas...");
+        this.getLogger().info(TextFormat.GREEN + "Loading arenas...");
         File arenas = new File(this.getDataFolder(), "arenas");
 
         if (!arenas.isDirectory()) {
-            this.getLogger().info(getPrefix() + TextFormat.GREEN + "No arenas found");
+            this.getLogger().info(TextFormat.GREEN + "No arenas found");
             return;
         }
 
@@ -60,7 +60,7 @@ public class ColorMatch extends PluginBase {
         });
 
         if (files == null || files.length == 0) {
-            this.getLogger().info(getPrefix() + TextFormat.GREEN + "No arenas found");
+            this.getLogger().info(TextFormat.GREEN + "No arenas found");
             return;
         }
 
@@ -70,7 +70,7 @@ public class ColorMatch extends PluginBase {
             String name = fileName.substring(0, fileName.length() - 4);
 
             if (registerArena(name, config)) {
-                this.getLogger().info(TextFormat.GRAY + file.getName() + TextFormat.GREEN + " load successful");
+                this.getLogger().info(TextFormat.GRAY + name + TextFormat.GREEN + " load successful");
             } /*else {
                 this.getLogger().info(TextFormat.GRAY + file.getName()+TextFormat.RED+" load failed");
             }*/

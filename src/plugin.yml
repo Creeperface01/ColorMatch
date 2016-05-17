@@ -4,6 +4,7 @@ api: ["1.0.0"]
 main: main.java.ColorMatch.ColorMatch
 author: "CreeperFace"
 description: "ColorMatch minigame for nukkit"
+prefix: "§9[§cCM§9]§f"
 
 commands:
   colormatch:

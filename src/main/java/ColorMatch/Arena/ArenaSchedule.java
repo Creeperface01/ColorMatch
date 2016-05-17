@@ -1,5 +1,6 @@
 package main.java.ColorMatch.Arena;
 
+import cn.nukkit.Player;
 import lombok.Getter;
 
 public class ArenaSchedule implements Runnable {
@@ -17,7 +18,7 @@ public class ArenaSchedule implements Runnable {
     @Getter
     public int id = 0;
 
-    public boolean floor = false;
+    public boolean floor = true;
 
     public void run() {
         if (plugin.getPhase() == Arena.PHASE_GAME) {
@@ -28,10 +29,17 @@ public class ArenaSchedule implements Runnable {
     }
 
     private void lobby() {
-        startTime++;
+        if (plugin.starting) {
+            int maxTime = plugin.plugin.conf.getStartTime();
 
-        if (startTime >= plugin.plugin.conf.getStartTime()) {
-            plugin.start();
+            startTime++;
+
+            plugin.players.values().forEach((Player p) -> p.setExperience(0, maxTime - startTime));
+
+            if (startTime >= plugin.plugin.conf.getStartTime()) {
+                plugin.start();
+                startTime = 0;
+            }
         }
     }
 
@@ -42,14 +50,13 @@ public class ArenaSchedule implements Runnable {
         }
 
         time++;
+        colorTime++;
 
-        if (floor) {
-            if (colorTime % plugin.plugin.conf.getColorChangeInterval() == 0) {
+        if ((colorTime % plugin.plugin.conf.getColorChangeInterval()) == 0) {
+            if (floor) {
                 plugin.removeFloor();
                 floor = false;
-            }
-        } else {
-            if (colorTime % plugin.plugin.conf.getColorChangeInterval() == 0) {
+            } else {
                 floor = true;
                 plugin.selectNewColor();
                 plugin.resetFloor();

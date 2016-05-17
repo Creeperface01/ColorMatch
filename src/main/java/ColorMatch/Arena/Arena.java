@@ -16,6 +16,7 @@ import main.java.ColorMatch.ColorMatch;
 import cn.nukkit.event.Listener;
 import main.java.ColorMatch.Utils.WoolColor;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -47,7 +48,9 @@ public class Arena extends ArenaManager implements Listener {
 
     protected int currentColor = 0;
 
-    protected ArrayList<Player> winners = new ArrayList<>();
+    public boolean starting = false;
+
+    protected ArrayDeque<Player> winners = new ArrayDeque<>();
 
     public Arena(ColorMatch plugin, String name, Config cfg) {
         this.name = name;
@@ -66,14 +69,20 @@ public class Arena extends ArenaManager implements Listener {
         this.plugin.getServer().getPluginManager().registerEvents(listener, plugin);
         scheduler.id = this.plugin.getServer().getScheduler().scheduleRepeatingTask(scheduler, 20).getTaskId();
         this.enabled = true;
-        this.updateJoinSign();
+        updateJoinSign();
+        resetFloor();
         return true;
     }
 
     public boolean disable() {
+        if (phase == PHASE_GAME) {
+            endGame();
+        }
+
         HandlerList.unregisterAll(listener);
         this.plugin.getServer().getScheduler().cancelTask(scheduler.getId());
         enabled = false;
+        starting = false;
         updateJoinSign();
         return true;
     }
@@ -83,37 +92,42 @@ public class Arena extends ArenaManager implements Listener {
     }
 
     public void start(boolean force) {
+        starting = false;
+
         if (players.size() < plugin.conf.getMinPlayers() && !force) {
             return;
         }
 
         Effect effect = getGameEffect();
 
-        for (Player p : players.values()) {
+        players.values().forEach(p -> {
             p.teleport(getStartPos());
             p.sendMessage(ColorMatch.getPrefix() + TextFormat.AQUA + "Game started!");
 
             if (effect != null) {
                 p.addEffect(effect.clone());
             }
-        }
+
+            p.extinguish();
+        });
 
         this.phase = PHASE_GAME;
         updateJoinSign();
+        selectNewColor();
     }
 
     public void stop() {
-        for (Player p : players.values()) {
-            removeFromArena(p);
-        }
+        this.phase = PHASE_LOBBY;
 
-        for (Player p : spectators.values()) {
+        players.values().forEach(p -> removeFromArena(p, false));
+
+        for (Player p : new ArrayList<>(spectators.values())) {
             removeSpectator(p);
         }
 
-        this.phase = PHASE_LOBBY;
         updateJoinSign();
         resetFloor();
+        winners.clear();
     }
 
     public void endGame() {
@@ -121,19 +135,19 @@ public class Arena extends ArenaManager implements Listener {
             winners.add(this.players.values().toArray(new Player[1])[0]);
         }
 
-        String message = "§6§l---------------------§r\n§5arena " + getName() + " ended\n§4winners:\n§a1. %2\n§e2. %3\n§c3. %4\n§6§l---------------------";
+        String message = "§6§l---------------------§r\n§5arena " + getName() + " has ended\n§4winners:\n§a1. %0\n§e2. %1\n§c3. %2\n§6§l---------------------";
 
-        int i = 2;
-
-        for (Player p : winners) {
+        for (int i = 0; i < 3; i++) {
             String replace = "---";
 
-            if (p != null) {
-                replace = p.getDisplayName();
+            if (!winners.isEmpty()) {
+                replace = winners.pop().getDisplayName();
             }
 
             message = message.replaceAll("%" + i, replace);
         }
+
+        messageArenaPlayers(message);
 
         stop();
     }
@@ -158,36 +172,44 @@ public class Arena extends ArenaManager implements Listener {
         p.teleport(getStartPos());
         p.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Joining to arena " + TextFormat.YELLOW + this.name + TextFormat.GRAY + "...");
 
+        //p.setDisplayName(TextFormat.GRAY + "[" + TextFormat.GREEN + "GAME" + TextFormat.GRAY + "] " + TextFormat.WHITE + TextFormat.RESET + " " + p.getDisplayName());
+
         checkLobby();
     }
 
     public void onDeath(Player p) {
-        messageArenaPlayers(p.getDisplayName() + TextFormat.GRAY + " died!  " + TextFormat.AQUA + players.size() + TextFormat.GRAY + " players left");
-
         resetPlayer(p);
 
+        messageArenaPlayers(p.getDisplayName() + TextFormat.GRAY + " died!  " + TextFormat.AQUA + (players.size() - 1) + TextFormat.GRAY + " players left");
         players.remove(p.getName().toLowerCase());
+
         if (this.players.size() <= 2) {
             this.winners.add(p);
         }
 
-        checkAlive();
-
         addSpectator(p);
+        checkAlive();
     }
 
     public void removeFromArena(Player p) {
+        removeFromArena(p, true);
+    }
+
+    public void removeFromArena(Player p, boolean message) {
         this.players.remove(p.getName().toLowerCase());
         updateJoinSign();
         resetPlayer(p);
+        //p.setDisplayName(p.getDisplayName().replaceAll(TextFormat.GRAY + "[" + TextFormat.GREEN + "GAME" + TextFormat.GRAY + "] " + TextFormat.WHITE + TextFormat.RESET + " ", ""));
 
-        messageArenaPlayers(ColorMatch.getPrefix() + TextFormat.YELLOW + p.getDisplayName() + TextFormat.GRAY + " has left (" + (TextFormat.BLUE + players.size() + 1) + TextFormat.YELLOW + "/" + TextFormat.BLUE + plugin.conf.getMaxPlayers());
+        if (message) {
+            messageArenaPlayers(ColorMatch.getPrefix() + TextFormat.YELLOW + p.getDisplayName() + TextFormat.GRAY + " has left (" + (TextFormat.BLUE + players.size() + 1) + TextFormat.YELLOW + "/" + TextFormat.BLUE + plugin.conf.getMaxPlayers());
 
-        if (p.isOnline()) {
-            p.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Leaving arena...");
+            if (p.isOnline()) {
+                p.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Leaving arena...");
+            }
         }
 
-        p.teleport(plugin.conf.getLobby());
+        p.teleport(plugin.conf.getMainLobby());
 
         if (phase == PHASE_GAME) {
             if (this.players.size() <= 2) {
@@ -201,21 +223,25 @@ public class Arena extends ArenaManager implements Listener {
     public void addSpectator(Player p) {
         resetPlayer(p);
         p.teleport(getSpectatorPos());
-        p.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Joining to as spectator...");
+        p.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Joining as spectator...");
+        //p.setDisplayName(TextFormat.GRAY + "[" + TextFormat.YELLOW + "SPECTATOR" + TextFormat.GRAY + "] " + TextFormat.WHITE + TextFormat.RESET + " " + p.getDisplayName());
         this.spectators.put(p.getName().toLowerCase(), p);
     }
 
     public void removeSpectator(Player p) {
+        //p.setDisplayName(p.getDisplayName().replaceAll(TextFormat.GRAY + "[" + TextFormat.YELLOW + "SPECTATOR" + TextFormat.GRAY + "] " + TextFormat.WHITE + TextFormat.RESET + " ", ""));
         this.spectators.remove(p.getName().toLowerCase());
-        p.teleport(plugin.conf.getLobby());
+        p.teleport(plugin.conf.getMainLobby());
+        resetPlayer(p);
     }
 
     public void selectNewColor() {
         this.currentColor = new Random().nextInt(15);
 
-        Item item = new ItemBlock(new BlockWool(currentColor));
+        Item item = new ItemBlock(new BlockWool(), currentColor);
+        item.setDamage(currentColor);
 
-        for (Player p : players.values()) {
+        players.values().forEach((Player p) -> {
             PlayerInventory inv = p.getInventory();
 
             for (int i = 0; i < 9 && i < inv.getSize(); i++) {
@@ -223,9 +249,14 @@ public class Arena extends ArenaManager implements Listener {
                 inv.setHotbarSlotIndex(i, i);
             }
 
-            String msg = WoolColor.getColorName(currentColor) + "\n\n\n\n";
-            p.sendPopup(msg);
-        }
+            inv.sendContents(p);
+
+            inv.setItemInHand(item.clone());
+            inv.sendHeldItem(p);
+
+            /*String msg = WoolColor.getColorName(currentColor) + "\n\n\n\n";
+            p.sendPopup(msg);*/
+        });
     }
 
     public void resetFloor() {
@@ -239,7 +270,7 @@ public class Arena extends ArenaManager implements Listener {
         int floorSize = (int) (((floor.maxX - floor.minX) / 3) * ((floor.maxZ - floor.minZ) / 3));
 
         int randomBlock = random.nextInt(floorSize);
-        int maxColorCount = (int) floorSize / 16;
+        int maxColorCount = (int) floorSize / 32;
 
         for (int x = (int) getFloor().minX; x <= getFloor().maxX; x += 3) {
             for (int z = (int) getFloor().minZ; z <= getFloor().maxZ; z += 3) {
@@ -252,7 +283,7 @@ public class Arena extends ArenaManager implements Listener {
 
                 if (color == this.currentColor) {
                     colorCount++;
-                } else if (blockCount == randomBlock && colorCount < maxColorCount) {
+                } else if (blockCount == randomBlock && colorCount < maxColorCount / 2) {
                     color = this.currentColor;
                 }
 
@@ -260,7 +291,7 @@ public class Arena extends ArenaManager implements Listener {
 
                 for (int x_ = minX; x_ <= maxX; x_++) {
                     for (int z_ = minZ; z_ <= maxZ; z_++) {
-                        level.setBlock(v.setComponents(x_, floor.minY, z_), block.clone(), true, false);
+                        level.setBlock(v.setComponents(x_, floorPos.getFloorY(), z_), block.clone(), true, false);
                     }
                 }
 
@@ -271,11 +302,37 @@ public class Arena extends ArenaManager implements Listener {
 
     public void removeFloor() {
         Vector3 v = new Vector3();
+        BlockAir air = new BlockAir();
 
-        for (int x = (int) getFloor().minX; x <= getFloor().maxX; x++) {
+        /*for (int x = (int) getFloor().minX; x <= getFloor().maxX; x++) {
             for (int z = (int) getFloor().minZ; z <= getFloor().maxZ; z++) {
-                if (level.getBlockDataAt(x, (int) floor.minY, z) != currentColor) {
+                int meta = level.getBlockDataAt(x, floorPos.getFloorY(), z);
+
+                //int meta = level.getChunk(x >> 4, z >> 4, true).getBlockData(x & 15, floorPos.getFloorY() & 127, z & 15);
+
+                if (meta != currentColor) {
                     level.setBlock(v.setComponents(x, floorPos.getFloorY(), z), new BlockAir(), true, false);
+                }
+            }
+        }*/
+
+        for (int x = (int) getFloor().minX; x <= getFloor().maxX; x += 3) {
+            for (int z = (int) getFloor().minZ; z <= getFloor().maxZ; z += 3) {
+                int minX = x - 1;
+                int minZ = z - 1;
+                int maxX = x + 1;
+                int maxZ = z + 1;
+
+                int meta = level.getBlockDataAt(x, floorPos.getFloorY(), z);
+
+                //int meta = level.getChunk(x >> 4, z >> 4, true).getBlockData(x & 15, floorPos.getFloorY() & 127, z & 15);
+
+                if (meta != currentColor) {
+                    for (int x_ = minX; x_ <= maxX; x_++) {
+                        for (int z_ = minZ; z_ <= maxZ; z_++) {
+                            level.setBlock(v.setComponents(x_, floorPos.getFloorY(), z_), air.clone(), true, false);
+                        }
+                    }
                 }
             }
         }
