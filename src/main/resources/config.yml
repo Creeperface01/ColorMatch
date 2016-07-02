@@ -1,3 +1,6 @@
+#DO NOT CHANGE THIS!!!
+version: 1
+
 #server spawn
 main_lobby:
   x: 0
@@ -11,8 +14,6 @@ min_players: 4
 #max player count
 max_players: 12
 
-color_change_interval: 5
-
 #max game tam in seconds
 max_game_time: 600
 
@@ -21,3 +22,6 @@ directjoin: false
 
 #starting cooldown in seconds
 start_time: 30
+
+#save players inventory on join?
+save_inventory: true

@@ -1,28 +1,42 @@
-package main.java.ColorMatch;
+package ColorMatch;
 
+import ColorMatch.EventHandler.MainListener;
+import ColorMatch.Utils.ArenaBuilder;
+import ColorMatch.Utils.Utils;
+import cn.nukkit.Player;
+import cn.nukkit.block.Block;
+import cn.nukkit.block.BlockIron;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.inventory.PlayerInventory;
+import cn.nukkit.item.ItemAxeGold;
+import cn.nukkit.item.ItemHoeGold;
+import cn.nukkit.item.ItemPickaxeGold;
+import cn.nukkit.item.ItemSwordGold;
 import cn.nukkit.plugin.PluginBase;
-import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import lombok.Getter;
-import main.java.ColorMatch.Arena.Arena;
+import ColorMatch.Arena.Arena;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.HashMap;
+import java.util.Map;
 
 public class ColorMatch extends PluginBase {
 
     public MainConfiguration conf;
 
     @Getter
-    private HashMap<String, Arena> arenas = new HashMap<>();
+    private final Map<String, Arena> arenas = new HashMap<>();
+
+    @Getter
+    private final Map<String, Arena> setters = new HashMap<>();
 
     @Override
     public void onEnable() {
         new File(this.getDataFolder(), "arenas").mkdirs();
-        this.saveResource("config.yml");
+        this.saveDefaultConfig();
 
         this.conf = new MainConfiguration();
         if (!this.conf.init(this.getConfig())) {
@@ -30,15 +44,26 @@ public class ColorMatch extends PluginBase {
             return;
         }
 
+        this.getServer().getPluginManager().registerEvents(new MainListener(this), this);
         this.registerArenas();
+    }
+
+    public void onDisable() {
+        getLogger().debug("disabling all arenas...");
+
+        arenas.forEach((name, arena) -> {
+            getLogger().debug("disabling " + name + "...");
+            arena.disable();
+            arena.save(false);
+        });
     }
 
     public static String getPrefix() {
         return "§9[§cCM§9] ";
     }
 
-    public boolean registerArena(String name, Config config) {
-        Arena arena = new Arena(this, name, config);
+    public boolean registerArena(String name, File file) {
+        Arena arena = new Arena(this, name, file);
         arenas.put(name, arena);
         return arena.enable();
     }
@@ -65,12 +90,11 @@ public class ColorMatch extends PluginBase {
         }
 
         for (File file : files) {
-            Config config = new Config(file, Config.YAML);
             String fileName = file.getName().toLowerCase().trim();
             String name = fileName.substring(0, fileName.length() - 4);
 
-            if (registerArena(name, config)) {
-                this.getLogger().info(TextFormat.GRAY + name + TextFormat.GREEN + " load successful");
+            if (registerArena(name, file)) {
+                this.getLogger().info(TextFormat.GRAY + name + TextFormat.GREEN + " - load successful");
             } /*else {
                 this.getLogger().info(TextFormat.GRAY + file.getName()+TextFormat.RED+" load failed");
             }*/
@@ -84,19 +108,271 @@ public class ColorMatch extends PluginBase {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (cmd.getName().toLowerCase().equals("colormatch")) {
-            if (args.length <= 0) {
-                sender.sendMessage("");
-                return false;
+            if (args.length < 1/* && !args[0].toLowerCase().equals("help")*/) {
+                sender.sendMessage(getHelp(sender, 0));
+                return true;
+            }
+
+            Arena arena = args.length >= 2 ? arenas.get(args[1].toLowerCase()) : null;
+
+            if (!sender.hasPermission("cm.command." + args[0].toLowerCase())) {
+                sender.sendMessage(cmd.getPermissionMessage());
+                return true;
             }
 
             switch (args[0].toLowerCase()) {
+                case "load":
+                case "disable":
+                    if (args.length != 2) {
+                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm disable <arena>");
+                        return true;
+                    }
+
+                    if (arena == null) {
+                        sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' doesn't exist");
+                        return true;
+                    }
+
+                    if (!arena.isEnabled()) {
+                        sender.sendMessage(getPrefix() + TextFormat.YELLOW + "Arena is already disabled");
+                        return true;
+                    }
+
+                    sender.sendMessage(getPrefix() + TextFormat.GREEN + "Disabling arena " + TextFormat.YELLOW + arena.getName() + TextFormat.GREEN + "...");
+                    boolean disabled = arena.disable();
+                    break;
+                case "unload":
+                case "enable":
+                    if (args.length != 2) {
+                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm enable <arena>");
+                        return true;
+                    }
+
+                    if (arena == null) {
+                        sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' doesn't exist");
+                        return true;
+                    }
+
+                    if (arena.isEnabled()) {
+                        sender.sendMessage(getPrefix() + TextFormat.YELLOW + "Arena is already enabled");
+                        return true;
+                    }
+
+                    sender.sendMessage(getPrefix() + TextFormat.GREEN + "Enabling arena " + TextFormat.YELLOW + arena.getName() + TextFormat.GREEN + "...");
+
+                    if (!arena.enable()) {
+                        sender.sendMessage(getPrefix() + TextFormat.RED + "An error occurred during enabling");
+                        return true;
+                    }
+                    break;
                 case "start":
+                    if (args.length != 1 && args.length != 2) {
+                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm start <arena>");
+                        return true;
+                    }
+
+                    if (arena == null) {
+                        arena = getPlayerArena((Player) sender);
+
+                        if (arena == null) {
+                            sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' doesn't exist");
+                            return true;
+                        }
+                    }
+
+                    arena.start(true);
+                    sender.sendMessage(getPrefix() + TextFormat.GREEN + "Arena started!");
+                    break;
+                case "stop":
+                    if (args.length != 2) {
+                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm stop <arena>");
+                        return true;
+                    }
+
+                    if (arena == null) {
+                        arena = getPlayerArena((Player) sender);
+
+                        if (arena == null) {
+                            sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' doesn't exist");
+                            return true;
+                        }
+                    }
+
+                    arena.stop();
+                    sender.sendMessage(getPrefix() + TextFormat.GREEN + "Arena stopped");
+                    break;
+                case "join":
+                    if (!(sender instanceof Player)) {
+                        sender.sendMessage(getPrefix() + TextFormat.RED + "Run this command in-game");
+                        return true;
+                    }
+
+                    if (args.length != 2) {
+                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm join <arena>");
+                        return true;
+                    }
+
+                    if (arena == null) {
+                        arena = getPlayerArena((Player) sender);
+
+                        if (arena == null) {
+                            sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' doesn't exist");
+                            return true;
+                        }
+                    }
+
+                    arena.addToArena((Player) sender);
+                    break;
+                case "leave":
+                    if (!(sender instanceof Player)) {
+                        sender.sendMessage(getPrefix() + TextFormat.RED + "Run this command in-game");
+                        return true;
+                    }
+
+                    if (arena == null) {
+                        arena = getPlayerArena((Player) sender);
+
+                        if (arena == null) {
+                            sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' doesn't exist");
+                            return true;
+                        }
+                    }
+
+                    if (arena.isSpectator((Player) sender)) {
+                        arena.removeSpectator((Player) sender);
+                    } else {
+                        arena.removeFromArena((Player) sender);
+                    }
+                    break;
+                case "set":
+                    if (!(sender instanceof Player)) {
+                        sender.sendMessage(getPrefix() + TextFormat.RED + "Run this command in-game");
+                        return true;
+                    }
+
+                    if (args.length != 2) {
+                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm set <arena>");
+                        return true;
+                    }
+
+                    if (arena == null) {
+                        sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' doesn't exist");
+                        return true;
+                    }
+
+                    if (arena.getPhase() == Arena.PHASE_GAME) {
+                        sender.sendMessage(getPrefix() + TextFormat.RED + "Arena is running");
+                        return true;
+                    }
+
+                    arena.disable();
+                    arena.setup = true;
+                    setters.put(sender.getName(), arena);
+                    giveSetupTools((Player) sender);
+                    sender.sendMessage(getPrefix() + TextFormat.YELLOW + "You are now editing arena " + TextFormat.BLUE + arena.getName());
+                    break;
+                case "create":
+                    if (args.length != 2) {
+                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm create <arena>");
+                        return true;
+                    }
+
+                    if (arena != null) {
+                        sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' already exists");
+                        break;
+                    }
+
+                    arena = new Arena(this, args[1].toLowerCase(), new File(getDataFolder() + "/arenas/" + args[1].toLowerCase() + ".yml"));
+
+                    arenas.put(args[1].toLowerCase(), arena);
+
+                    sender.sendMessage(getPrefix() + TextFormat.GREEN + "Arena " + TextFormat.YELLOW + "'" + args[1].toLowerCase() + "'" + TextFormat.GREEN + " was successfully created");
+                    break;
+                case "remove":
                     break;
                 case "help":
+                    sender.sendMessage(getHelp(sender, 0));
+                    break;
+                case "setlobby":
+                case "setmainlobby":
+                    break;
+                case "build":
+                    if (args.length != 2 && args.length != 3) {
+                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm build <arena> [block]");
+                        return true;
+                    }
+
+                    Block b = new BlockIron();
+
+                    if(args.length == 3){
+                        Block b2 = Utils.fromString(args[2]);
+
+                        if(b2.getId() == 0){
+                            sender.sendMessage(getPrefix()+TextFormat.RED+"Invalid block");
+                            return true;
+                        } else {
+                            b = b2;
+                        }
+                    }
+
+                    if (arena == null) {
+                        sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' doesn't exist");
+                        return true;
+                    }
+
+                    sender.sendMessage(getPrefix() + TextFormat.GREEN + "Building arena " + TextFormat.YELLOW + arena.getName() + TextFormat.GREEN + "...");
+
+                    sender.sendMessage(ArenaBuilder.build(arena, arena.getLevel(), b));
+                    break;
+                default:
+                    sender.sendMessage(getHelp(sender, 1));
                     break;
             }
         }
 
         return true;
+    }
+
+    private String getHelp(CommandSender sender, int page) {
+        String help = TextFormat.GRAY + "Showing ColorMatch help page 1/1:";
+
+        if (sender.hasPermission("colormatch.command.start")) help += "\n" + TextFormat.YELLOW + "/cm start [arena]";
+        if (sender.hasPermission("colormatch.command.stop")) help += "\n" + TextFormat.YELLOW + "/cm stop [arena]";
+        if (sender.hasPermission("colormatch.command.join")) help += "\n" + TextFormat.YELLOW + "/cm join <arena>";
+        if (sender.hasPermission("colormatch.command.leave")) help += "\n" + TextFormat.YELLOW + "/cm leave";
+        if (sender.hasPermission("colormatch.command.enable")) help += "\n" + TextFormat.YELLOW + "/cm enable <arena>";
+        if (sender.hasPermission("colormatch.command.disable")) help += "\n" + TextFormat.YELLOW + "/cm disable <arena>";
+        if (sender.hasPermission("colormatch.command.disable")) help += "\n" + TextFormat.YELLOW + "/cm set <arena>";
+        if (sender.hasPermission("colormatch.command.disable")) help += "\n" + TextFormat.YELLOW + "/cm create <arena>";
+        if (sender.hasPermission("colormatch.command.disable")) help += "\n" + TextFormat.YELLOW + "/cm delete <arena>";
+        if (sender.hasPermission("colormatch.command.help")) help += "\n" + TextFormat.YELLOW + "/cm help";
+
+        return help;
+    }
+
+    public Arena getPlayerArena(Player p) {
+        for (Arena a : arenas.values()) {
+            if (a.isSpectator(p) || a.inArena(p)) {
+                return a;
+            }
+        }
+
+        return null;
+    }
+
+    private void giveSetupTools(Player p) {
+        PlayerInventory inv = p.getInventory();
+        inv.clearAll();
+
+        inv.setItem(0, new ItemSwordGold().setCustomName(TextFormat.RESET + TextFormat.GREEN + "Set start position"));
+        inv.setItem(1, new ItemPickaxeGold().setCustomName(TextFormat.RESET + TextFormat.GREEN + "Set floor position"));
+        inv.setItem(2, new ItemAxeGold().setCustomName(TextFormat.RESET + TextFormat.GREEN + "Set spectator spawn"));
+        inv.setItem(3, new ItemHoeGold().setCustomName(TextFormat.RESET + TextFormat.GREEN + "Set join sign"));
+
+        for (int i = 0; i < 4; i++) {
+            inv.setHotbarSlotIndex(i, i);
+        }
+
+        inv.sendContents(p);
     }
 }

@@ -1,4 +1,4 @@
-package main.java.ColorMatch;
+package ColorMatch;
 
 import cn.nukkit.Server;
 import cn.nukkit.level.Level;
@@ -18,9 +18,6 @@ public class MainConfiguration {
     private Position mainLobby = null;
 
     @Getter
-    private int colorChangeInterval = 0;
-
-    @Getter
     private boolean directJoin = false;
 
     @Getter
@@ -29,6 +26,9 @@ public class MainConfiguration {
     @Getter
     private int startTime = 0;
 
+    @Getter
+    private boolean saveInventory = true;
+
     public boolean init(Config cfg) {
         Server server = Server.getInstance();
 
@@ -36,8 +36,7 @@ public class MainConfiguration {
         maxPlayers = cfg.getInt("max_players", 12);
         maxGameTime = cfg.getInt("max_game_time", 600);
         startTime = cfg.getInt("start_time", 30);
-
-        colorChangeInterval = cfg.getInt("color_change_interval", 5);
+        saveInventory = cfg.getBoolean("save_inventory", true);
 
         String name = cfg.getString("main_lobby.world", server.getDefaultLevel().getName());
 
@@ -52,7 +51,11 @@ public class MainConfiguration {
             return false;
         }
 
-        mainLobby = new Position(cfg.getInt("main_lobby.x"), cfg.getInt("main_lobby.y"), cfg.getInt("main_lobby.z"), level);
+        if(cfg.exists("main_lobby")) {
+            mainLobby = new Position(cfg.getInt("main_lobby.x"), cfg.getInt("main_lobby.y"), cfg.getInt("main_lobby.z"), level);
+        } else {
+            mainLobby = server.getDefaultLevel().getSpawnLocation();
+        }
         return true;
     }
 }

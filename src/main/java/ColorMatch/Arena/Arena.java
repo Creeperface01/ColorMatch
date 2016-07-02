@@ -1,6 +1,7 @@
-package main.java.ColorMatch.Arena;
+package ColorMatch.Arena;
 
 import cn.nukkit.Player;
+import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockAir;
 import cn.nukkit.block.BlockWool;
 import cn.nukkit.event.HandlerList;
@@ -12,14 +13,11 @@ import cn.nukkit.potion.Effect;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 import lombok.Getter;
-import main.java.ColorMatch.ColorMatch;
+import ColorMatch.ColorMatch;
 import cn.nukkit.event.Listener;
-import main.java.ColorMatch.Utils.WoolColor;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
+import java.io.File;
+import java.util.*;
 
 public class Arena extends ArenaManager implements Listener {
 
@@ -32,14 +30,17 @@ public class Arena extends ArenaManager implements Listener {
     @Getter
     protected boolean enabled = false;
 
-    @Getter
-    protected HashMap<String, Player> players = new HashMap<>();
+    public boolean setup = false;
 
     @Getter
-    protected HashMap<String, Player> spectators = new HashMap<>();
+    protected Map<String, Player> players = new HashMap<>();
+
+    @Getter
+    protected Map<String, Player> spectators = new HashMap<>();
+
+    protected Map<String, SavedPlayer> saves = new HashMap<>();
 
     protected ColorMatch plugin;
-    protected Config config;
     protected ArenaListener listener;
     protected ArenaSchedule scheduler;
 
@@ -52,21 +53,22 @@ public class Arena extends ArenaManager implements Listener {
 
     protected ArrayDeque<Player> winners = new ArrayDeque<>();
 
-    public Arena(ColorMatch plugin, String name, Config cfg) {
+    public Arena(ColorMatch plugin, String name, File cfg) {
+        load(cfg.getPath(), Config.YAML);
         this.name = name;
         super.plugin = this;
         this.listener = new ArenaListener(this);
         this.scheduler = new ArenaSchedule(this);
-        this.config = cfg;
         this.plugin = plugin;
     }
 
     public boolean enable() {
-        if (!this.init(config)) {
+        if (enabled || setup || !this.init()) {
             return false;
         }
 
         this.plugin.getServer().getPluginManager().registerEvents(listener, plugin);
+        scheduler = new ArenaSchedule(this);
         scheduler.id = this.plugin.getServer().getScheduler().scheduleRepeatingTask(scheduler, 20).getTaskId();
         this.enabled = true;
         updateJoinSign();
@@ -75,8 +77,14 @@ public class Arena extends ArenaManager implements Listener {
     }
 
     public boolean disable() {
+        if (!enabled) {
+            return false;
+        }
+
         if (phase == PHASE_GAME) {
             endGame();
+        } else {
+            stop();
         }
 
         HandlerList.unregisterAll(listener);
@@ -119,12 +127,14 @@ public class Arena extends ArenaManager implements Listener {
     public void stop() {
         this.phase = PHASE_LOBBY;
 
-        players.values().forEach(p -> removeFromArena(p, false));
+        new ArrayList<>(players.values()).forEach(p -> removeFromArena(p, false));
 
         for (Player p : new ArrayList<>(spectators.values())) {
             removeSpectator(p);
         }
 
+        scheduler.time = 0;
+        scheduler.colorTime = 0;
         updateJoinSign();
         resetFloor();
         winners.clear();
@@ -153,7 +163,17 @@ public class Arena extends ArenaManager implements Listener {
     }
 
     public void addToArena(Player p) {
+        if (setup) {
+            p.sendMessage(ColorMatch.getPrefix() + TextFormat.RED + "This arena is currently in setup mode");
+            return;
+        }
+
         if (phase == PHASE_GAME) {
+            SavedPlayer save = new SavedPlayer();
+            save.save(p);
+            saves.put(p.getName().toLowerCase(), save);
+
+            this.addSpectator(p);
             this.addSpectator(p);
             return;
         }
@@ -170,6 +190,11 @@ public class Arena extends ArenaManager implements Listener {
 
         resetPlayer(p);
         p.teleport(getStartPos());
+
+        SavedPlayer save = new SavedPlayer();
+        save.save(p);
+        saves.put(p.getName().toLowerCase(), save);
+
         p.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Joining to arena " + TextFormat.YELLOW + this.name + TextFormat.GRAY + "...");
 
         //p.setDisplayName(TextFormat.GRAY + "[" + TextFormat.GREEN + "GAME" + TextFormat.GRAY + "] " + TextFormat.WHITE + TextFormat.RESET + " " + p.getDisplayName());
@@ -210,6 +235,11 @@ public class Arena extends ArenaManager implements Listener {
         }
 
         p.teleport(plugin.conf.getMainLobby());
+        SavedPlayer save = saves.remove(p.getName().toLowerCase());
+
+        if (save != null) {
+            save.load(p);
+        }
 
         if (phase == PHASE_GAME) {
             if (this.players.size() <= 2) {
@@ -231,8 +261,14 @@ public class Arena extends ArenaManager implements Listener {
     public void removeSpectator(Player p) {
         //p.setDisplayName(p.getDisplayName().replaceAll(TextFormat.GRAY + "[" + TextFormat.YELLOW + "SPECTATOR" + TextFormat.GRAY + "] " + TextFormat.WHITE + TextFormat.RESET + " ", ""));
         this.spectators.remove(p.getName().toLowerCase());
-        p.teleport(plugin.conf.getMainLobby());
         resetPlayer(p);
+        p.teleport(plugin.conf.getMainLobby());
+
+        SavedPlayer save = saves.remove(p.getName().toLowerCase());
+
+        if (save != null) {
+            save.load(p);
+        }
     }
 
     public void selectNewColor() {
@@ -261,19 +297,19 @@ public class Arena extends ArenaManager implements Listener {
 
     public void resetFloor() {
         Random random = new Random();
-        BlockWool block = new BlockWool();
+        Block block = getFloorMaterial();
         Vector3 v = new Vector3();
 
         int colorCount = 0;
         int blockCount = 0;
 
-        int floorSize = (int) (((floor.maxX - floor.minX) / 3) * ((floor.maxZ - floor.minZ) / 3));
+        int floorSize = (int) (((floor.maxX - floor.minX + 1) / 3) * ((floor.maxZ - floor.minZ + 1) / 3));
 
         int randomBlock = random.nextInt(floorSize);
         int maxColorCount = (int) floorSize / 32;
 
-        for (int x = (int) getFloor().minX; x <= getFloor().maxX; x += 3) {
-            for (int z = (int) getFloor().minZ; z <= getFloor().maxZ; z += 3) {
+        for (int x = (int) getFloor().minX + 1; x <= getFloor().maxX - 1; x += 3) {
+            for (int z = (int) getFloor().minZ + 1; z <= getFloor().maxZ - 1; z += 3) {
                 int color = random.nextInt(15);
 
                 int minX = x - 1;
@@ -316,8 +352,8 @@ public class Arena extends ArenaManager implements Listener {
             }
         }*/
 
-        for (int x = (int) getFloor().minX; x <= getFloor().maxX; x += 3) {
-            for (int z = (int) getFloor().minZ; z <= getFloor().maxZ; z += 3) {
+        for (int x = (int) getFloor().minX + 1; x <= getFloor().maxX - 1; x += 3) {
+            for (int z = (int) getFloor().minZ + 1; z <= getFloor().maxZ - 1; z += 3) {
                 int minX = x - 1;
                 int minZ = z - 1;
                 int maxX = x + 1;

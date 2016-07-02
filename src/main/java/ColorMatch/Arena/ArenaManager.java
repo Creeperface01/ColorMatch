@@ -1,6 +1,7 @@
-package main.java.ColorMatch.Arena;
+package ColorMatch.Arena;
 
 import cn.nukkit.Player;
+import cn.nukkit.block.BlockWallSign;
 import cn.nukkit.blockentity.BlockEntitySign;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.potion.Effect;
@@ -75,6 +76,8 @@ public abstract class ArenaManager extends Configuration {
         BlockEntitySign sign = (BlockEntitySign) getJoinSign().level.getBlockEntity(getJoinSign());
 
         if (sign == null) {
+            getJoinSign().level.setBlock(getJoinSign(), new BlockWallSign(), true, false);
+
             CompoundTag nbt = (new CompoundTag()).putString("id", "Sign").putInt("x", (int) getJoinSign().x).putInt("y", (int) getJoinSign().y).putInt("z", (int) getJoinSign().z).putString("Text1", "").putString("Text2", "").putString("Text3", "").putString("Text4", "");
 
             sign = new BlockEntitySign(getJoinSign().level.getChunk((int) getJoinSign().x >> 4, (int) getJoinSign().z >> 4, true), nbt);

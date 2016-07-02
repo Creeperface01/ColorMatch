@@ -8,12 +8,6 @@ join_sign:
 #name of arena world
 arena_world: "arena world"
 
-#usefull for spectators
-leave_sign:
-  x: 0
-  y: 0
-  z: 0
-
 start_position:
   x: 0
   y: 0
@@ -32,6 +26,10 @@ floor_position:
 #radius 1 means floor 3x3 ( 9x9 in blocks) | radius 2 means floor 5x5 ( 15x15 in blocks)
 floor_radius: 4
 
+#you can change floor material. Now you can select between clay, carpet and wool (glass in future)
+floor_type: wool
+
+color_change_interval: 5
+
 #arena type ( normal = 0, furious = 1, stoned = 2, blind = 3 )
 type: 0
-

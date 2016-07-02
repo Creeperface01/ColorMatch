@@ -1,4 +1,4 @@
-package main.java.ColorMatch.Utils;
+package ColorMatch.Utils;
 
 import cn.nukkit.level.Level;
 

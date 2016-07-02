@@ -1,14 +1,3 @@
-# Compile outputs
-*.class
-target
-target/*
-build
-build/*
-nukkit-core/build
-nukkit-core/build/*
-nukkit-loader/build
-nukkit-loader/build/*
-
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 

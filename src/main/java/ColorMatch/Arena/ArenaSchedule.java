@@ -1,4 +1,4 @@
-package main.java.ColorMatch.Arena;
+package ColorMatch.Arena;
 
 import cn.nukkit.Player;
 import lombok.Getter;
@@ -49,10 +49,7 @@ public class ArenaSchedule implements Runnable {
             return;
         }
 
-        time++;
-        colorTime++;
-
-        if ((colorTime % plugin.plugin.conf.getColorChangeInterval()) == 0) {
+        if ((colorTime % plugin.getColorChangeInterval()) == 0) {
             if (floor) {
                 plugin.removeFloor();
                 floor = false;
@@ -62,5 +59,8 @@ public class ArenaSchedule implements Runnable {
                 plugin.resetFloor();
             }
         }
+
+        time++;
+        colorTime++;
     }
 }
