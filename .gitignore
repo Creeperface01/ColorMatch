@@ -14,6 +14,7 @@ hs_err_pid*
 *.iml
 .idea
 .idea/*
+libraries
 
 # Eclipse Platforms
 .classpath

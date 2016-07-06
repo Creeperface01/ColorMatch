@@ -13,6 +13,8 @@ import cn.nukkit.item.ItemAxeGold;
 import cn.nukkit.item.ItemHoeGold;
 import cn.nukkit.item.ItemPickaxeGold;
 import cn.nukkit.item.ItemSwordGold;
+import cn.nukkit.level.Level;
+import cn.nukkit.level.Position;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.TextFormat;
 import lombok.Getter;
@@ -36,10 +38,10 @@ public class ColorMatch extends PluginBase {
     @Override
     public void onEnable() {
         new File(this.getDataFolder(), "arenas").mkdirs();
-        this.saveDefaultConfig();
+        boolean first = saveResource("config.yml");
 
         this.conf = new MainConfiguration();
-        if (!this.conf.init(this.getConfig())) {
+        if (!this.conf.init(getDataFolder()+"/config.yml", first)) {
             this.getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -166,8 +168,8 @@ public class ColorMatch extends PluginBase {
                     }
                     break;
                 case "start":
-                    if (args.length != 1 && args.length != 2) {
-                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm start <arena>");
+                    if (((sender instanceof Player) && args.length < 1) || (!(sender instanceof Player) && args.length != 2)) {
+                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm start [arena]");
                         return true;
                     }
 
@@ -184,8 +186,8 @@ public class ColorMatch extends PluginBase {
                     sender.sendMessage(getPrefix() + TextFormat.GREEN + "Arena started!");
                     break;
                 case "stop":
-                    if (args.length != 2) {
-                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm stop <arena>");
+                    if (((sender instanceof Player) && args.length < 1) || (!(sender instanceof Player) && args.length != 2)) {
+                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm start [arena]");
                         return true;
                     }
 
@@ -295,6 +297,46 @@ public class ColorMatch extends PluginBase {
                     break;
                 case "setlobby":
                 case "setmainlobby":
+                    if(args.length < 4){
+                        if(!(sender instanceof Player)) {
+                            sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm setlobby <x> <y> <z> [world]");
+                            break;
+                        } else {
+                            this.conf.setMainLobby((Player) sender);
+                        }
+                    } else {
+                        int x;
+                        int y;
+                        int z;
+
+                        try {
+                            x = Integer.valueOf(args[1]);
+                            y = Integer.valueOf(args[2]);
+                            z = Integer.valueOf(args[3]);
+                        } catch (NumberFormatException e){
+                            sender.sendMessage(getPrefix() +TextFormat.RED+ "Invalid arguments." +"\n"+getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm setlobby <x> <y> <z> [world]");
+                            break;
+                        }
+
+                        Level level = null;
+
+                        if(args.length > 4){
+                            String world = args[4];
+
+                            level = getServer().getLevelByName(world);
+
+                            if(level ==  null){
+                                if(!getServer().loadLevel(world)) {
+                                    sender.sendMessage(getPrefix() + TextFormat.RED + "World '" + world + "' doesn't exist");
+                                    break;
+                                }
+
+                                level = getServer().getLevelByName(world);
+                            }
+                        }
+
+                        conf.setMainLobby(new Position(x, y, z, level != null ? level : getServer().getDefaultLevel()));
+                    }
                     break;
                 case "build":
                     if (args.length != 2 && args.length != 3) {
