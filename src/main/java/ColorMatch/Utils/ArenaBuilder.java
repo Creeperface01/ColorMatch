@@ -107,6 +107,6 @@ public class ArenaBuilder {
 
         cfg.resetFloor();
 
-        return ColorMatch.getPrefix() + TextFormat.GREEN + "Arena was successfully generated " + TextFormat.GRAY + "(" + blocks + " blocks, " + time / 1000 + " seconds)";
+        return ColorMatch.getPrefix() + TextFormat.GREEN + "Arena was successfully generated " + TextFormat.GRAY + "(" + blocks + " blocks, " + (System.currentTimeMillis() - time) / 1000 + " seconds)";
     }
 }

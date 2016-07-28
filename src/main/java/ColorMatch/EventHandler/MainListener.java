@@ -15,6 +15,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemTool;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.generator.Generator;
+import cn.nukkit.network.protocol.ContainerOpenPacket;
 import cn.nukkit.utils.TextFormat;
 import ColorMatch.Arena.Arena;
 
@@ -43,6 +44,8 @@ public class MainListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
+
+        plugin.getStats().createNewUser(p.getName().toLowerCase());
 
         if (plugin.getSetters().containsKey(p.getName())) {
             p.sendMessage(ColorMatch.getPrefix() + TextFormat.YELLOW + "You are setting arena " + plugin.getSetters().get(p.getName()).getName());
@@ -105,8 +108,14 @@ public class MainListener implements Listener {
                             arena.removeFromArena(p);
                         }
                     }
-                } else if (name.equals(arena.getName().toLowerCase())) {
-                    arena.addToArena(p);
+                } else {
+                    arena = plugin.getArena(name);
+
+                    if(arena != null) {
+                        arena.addToArena(p);
+                    } else {
+                        p.sendMessage(plugin.getLanguage().translateString("commands.failure.arena_doesnt_exist"));
+                    }
                 }
             }
         }

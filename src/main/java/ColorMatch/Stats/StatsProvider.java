@@ -1,8 +1,15 @@
 package ColorMatch.Stats;
 
-interface StatsProvider {
+import ColorMatch.ColorMatch;
+import cn.nukkit.Player;
 
-    boolean init();
+public interface StatsProvider {
 
-    void updateStats();
+    boolean init(ColorMatch plugin);
+
+    void updateStats(String name, boolean win, int rounds);
+
+    boolean createNewUser(String name);
+
+    void sendStats(Player p);
 }

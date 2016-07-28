@@ -1,5 +1,6 @@
 package ColorMatch;
 
+import ColorMatch.Lang.BaseLang;
 import cn.nukkit.Server;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
@@ -8,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.File;
+import java.io.FilenameFilter;
 
 public class MainConfiguration extends Config{
 
@@ -39,12 +41,23 @@ public class MainConfiguration extends Config{
     @Getter
     private boolean saveInventory = true;
 
+    @Getter
+    private String language = null;
+
+    @Getter
+    private String stats = null;
+
     public boolean init(String file, boolean isFirst) {
         if(!load(file, Config.YAML)){
             return false;
         }
 
         Server server = Server.getInstance();
+        ColorMatch plugin = ColorMatch.getInstance();
+
+        language = getString("language", "english").toLowerCase();
+
+        stats = getString("stats_provider", "yaml");
 
         minPlayers = getInt("min_players", 4);
         maxPlayers = getInt("max_players", 12);

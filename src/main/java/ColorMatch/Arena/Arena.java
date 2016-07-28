@@ -1,5 +1,9 @@
 package ColorMatch.Arena;
 
+import ColorMatch.Event.PlayerJoinArenaEvent;
+import ColorMatch.Event.PlayerQuitArenaEvent;
+import ColorMatch.Event.PlayerWinArenaEvent;
+import ColorMatch.Utils.Reward;
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockAir;
@@ -49,9 +53,12 @@ public class Arena extends ArenaManager implements Listener {
 
     protected int currentColor = 0;
 
+    @Getter
+    private int round = -1;
+
     public boolean starting = false;
 
-    protected ArrayDeque<Player> winners = new ArrayDeque<>();
+    protected Deque<Player> winners = new ArrayDeque<>();
 
     public Arena(ColorMatch plugin, String name, File cfg) {
         load(cfg.getPath(), Config.YAML);
@@ -119,6 +126,7 @@ public class Arena extends ArenaManager implements Listener {
             p.extinguish();
         });
 
+        this.round = -1;
         this.phase = PHASE_GAME;
         updateJoinSign();
         selectNewColor();
@@ -133,6 +141,7 @@ public class Arena extends ArenaManager implements Listener {
             removeSpectator(p);
         }
 
+        this.round = -1;
         scheduler.time = 0;
         scheduler.colorTime = 0;
         updateJoinSign();
@@ -142,22 +151,33 @@ public class Arena extends ArenaManager implements Listener {
 
     public void endGame() {
         if (this.players.size() == 1) {
-            winners.add(this.players.values().toArray(new Player[1])[0]);
+            winners.add(this.players.values().stream().toArray(Player[]::new)[0]);
         }
 
-        String message = "§6§l---------------------§r\n§5arena " + getName() + " has ended\n§4winners:\n§a1. %0\n§e2. %1\n§c3. %2\n§6§l---------------------";
+        if(!winners.isEmpty()){
+            Player winner = winners.getFirst();
+            Reward reward = plugin.getReward();
+
+            PlayerWinArenaEvent ev = new PlayerWinArenaEvent(winner, this, reward);
+            plugin.getServer().getPluginManager().callEvent(ev);
+
+            reward.give(winner);
+        }
+
+        String message = plugin.getLanguage().translateString("game.end_game");
 
         for (int i = 0; i < 3; i++) {
             String replace = "---";
 
             if (!winners.isEmpty()) {
-                replace = winners.pop().getDisplayName();
+                Player winner = winners.pop();
+                replace = winner.getDisplayName();
             }
 
             message = message.replaceAll("%" + i, replace);
         }
 
-        messageArenaPlayers(message);
+        plugin.getServer().broadcastMessage(message);
 
         stop();
     }
@@ -174,12 +194,18 @@ public class Arena extends ArenaManager implements Listener {
             saves.put(p.getName().toLowerCase(), save);
 
             this.addSpectator(p);
-            this.addSpectator(p);
             return;
         }
 
         if (players.size() >= plugin.conf.getMaxPlayers() && !p.hasPermission("colormatch.joinfullarena")) {
             p.sendMessage(ColorMatch.getPrefix() + TextFormat.RED + "This game is full");
+            return;
+        }
+
+        PlayerJoinArenaEvent e = new PlayerJoinArenaEvent(p, this);
+        plugin.getServer().getPluginManager().callEvent(e);
+
+        if(e.isCancelled()){
             return;
         }
 
@@ -217,6 +243,9 @@ public class Arena extends ArenaManager implements Listener {
     }
 
     public void removeFromArena(Player p) {
+        PlayerQuitArenaEvent ev = new PlayerQuitArenaEvent(p, this);
+        plugin.getServer().getPluginManager().callEvent(ev);
+
         removeFromArena(p, true);
     }
 
@@ -246,6 +275,7 @@ public class Arena extends ArenaManager implements Listener {
                 this.winners.add(p);
             }
 
+            plugin.getStats().updateStats(p.getName(), false, getRound());
             checkAlive();
         }
     }
@@ -334,6 +364,8 @@ public class Arena extends ArenaManager implements Listener {
                 blockCount++;
             }
         }
+
+        round++;
     }
 
     public void removeFloor() {

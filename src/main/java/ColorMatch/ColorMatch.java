@@ -1,7 +1,16 @@
 package ColorMatch;
 
+import ColorMatch.Economy.EconomyAPIProvider;
+import ColorMatch.Economy.EconomyProvider;
+import ColorMatch.Economy.LeetEconomyProvider;
 import ColorMatch.EventHandler.MainListener;
+import ColorMatch.Lang.BaseLang;
+import ColorMatch.Stats.MySQLStatsProvider;
+import ColorMatch.Stats.NoneProvider;
+import ColorMatch.Stats.StatsProvider;
+import ColorMatch.Stats.YamlStatsProvider;
 import ColorMatch.Utils.ArenaBuilder;
+import ColorMatch.Utils.Reward;
 import ColorMatch.Utils.Utils;
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
@@ -15,6 +24,7 @@ import cn.nukkit.item.ItemPickaxeGold;
 import cn.nukkit.item.ItemSwordGold;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
+import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.TextFormat;
 import lombok.Getter;
@@ -35,16 +45,44 @@ public class ColorMatch extends PluginBase {
     @Getter
     private final Map<String, Arena> setters = new HashMap<>();
 
+    @Getter
+    private BaseLang language = null;
+
+    @Getter
+    private EconomyProvider economy = null;
+
+    @Getter
+    private StatsProvider stats = null;
+
+    @Getter
+    private Reward reward = null;
+
+    @Getter
+    private static ColorMatch instance = null;
+
+    @Override
+    public void onLoad(){
+        instance = this;
+    }
+
     @Override
     public void onEnable() {
         new File(this.getDataFolder(), "arenas").mkdirs();
         boolean first = saveResource("config.yml");
+        saveResource("lang");
 
         this.conf = new MainConfiguration();
         if (!this.conf.init(getDataFolder()+"/config.yml", first)) {
             this.getServer().getPluginManager().disablePlugin(this);
             return;
         }
+
+        initLanguage();
+        initEconomy();
+        initStats();
+
+        reward = new Reward();
+        reward.init(this, conf.getSection("reward"));
 
         this.getServer().getPluginManager().registerEvents(new MainListener(this), this);
         this.registerArenas();
@@ -123,7 +161,7 @@ public class ColorMatch extends PluginBase {
             }
 
             switch (args[0].toLowerCase()) {
-                case "load":
+                case "unload":
                 case "disable":
                     if (args.length != 2) {
                         sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm disable <arena>");
@@ -143,7 +181,7 @@ public class ColorMatch extends PluginBase {
                     sender.sendMessage(getPrefix() + TextFormat.GREEN + "Disabling arena " + TextFormat.YELLOW + arena.getName() + TextFormat.GREEN + "...");
                     boolean disabled = arena.disable();
                     break;
-                case "unload":
+                case "load":
                 case "enable":
                     if (args.length != 2) {
                         sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm enable <arena>");
@@ -416,5 +454,72 @@ public class ColorMatch extends PluginBase {
         }
 
         inv.sendContents(p);
+    }
+
+    private void initLanguage(){
+        File languages = new File(getDataFolder()+"/lang");
+        String lang = conf.getLanguage();
+
+        if(!languages.exists() || !languages.isDirectory()) {
+            getLogger().error("Could not load default language");
+            return;
+        } else {
+            File[] files = languages.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.endsWith(".yml");
+                }
+            });
+
+            File langFile = null;
+
+            for(File l : files){
+                if(l.getName().toLowerCase().equals(lang+".yml")){
+                    langFile = l;
+                    break;
+                }
+            }
+
+            if(langFile == null){
+                getLogger().warning("Could not find language file '"+lang+".yml'. Selecting English as default language");
+                langFile = new File(getDataFolder()+"/lang/English.yml");
+            }
+
+            BaseLang baseLang = new BaseLang();
+            baseLang.init(langFile.getPath());
+
+            language = baseLang;
+        }
+    }
+
+    private void initEconomy(){
+        Plugin plugin = getServer().getPluginManager().getPlugin("EconomyAPI");
+
+        if(plugin != null){
+            economy = new EconomyAPIProvider(plugin);
+        } else if((plugin = getServer().getPluginManager().getPlugin("Economy-LEET")) != null){
+            economy = new LeetEconomyProvider(plugin);
+        }
+    }
+
+    private void initStats() {
+        String stats = conf.getStats();
+
+        switch(stats.toLowerCase()){
+            case "yml":
+            case "yaml":
+                this.stats = new YamlStatsProvider();
+                break;
+            case "sql":
+            case "mysql":
+                this.stats = new MySQLStatsProvider();
+                break;
+            default:
+                this.stats = new NoneProvider();
+        }
+
+        if(!this.stats.init(this)){
+            getLogger().warning("Could not load selected stats provider");
+        }
     }
 }

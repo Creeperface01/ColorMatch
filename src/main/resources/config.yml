@@ -1,6 +1,9 @@
 #DO NOT CHANGE THIS!!!
 version: 1
 
+#game language
+language: English
+
 #server spawn
 main_lobby:
   x: 0
@@ -18,7 +21,7 @@ max_players: 12
 max_game_time: 600
 
 #every player is immediately teleported to the arena after join. (usefull for servers with bungeecord)
-directjoin: false
+#direct_join: false
 
 #starting cooldown in seconds
 start_time: 30
@@ -29,9 +32,19 @@ save_inventory: true
 #stats provider (yaml, mysql) | set to 'none' if you dont want to save stats
 stats_provider: yaml
 
+#For MySQL:
+#stats_provider_settings:
+#  host: "127.0.0.1"
+#  port: 3306
+#  user: "user"
+#  password: "password"
+#  database: "databaseName"
+
+stats_provider_settings: []
+
 reward:
   enable: false
-  money: 0
+  money: 0.0
   items: []
 #Items example:
 #

@@ -60,3 +60,9 @@ permissions:
       colormatch.command.help:
         description: "allows player to see all avalaible ColorMatch commands"
         default: true
+      colormatch.command.build:
+        description: "allows player to see all avalaible ColorMatch commands"
+        default: true
+      colormatch.command.stats:
+        description: "allows player to see all avalaible ColorMatch commands"
+        default: true

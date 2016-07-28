@@ -9,8 +9,8 @@ public class EconomyAPIProvider implements EconomyProvider {
 
     private EconomyAPI plugin = null;
 
-    public EconomyAPIProvider(Plugin plugin){
-        if(plugin instanceof EconomyAPI){
+    public EconomyAPIProvider(Plugin plugin) {
+        if(plugin instanceof EconomyAPI) {
             this.plugin = (EconomyAPI) plugin;
         } else {
             Server.getInstance().getLogger().warning("Could not register plugin Economy");
