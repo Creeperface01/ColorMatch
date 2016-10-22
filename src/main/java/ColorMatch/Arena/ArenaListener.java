@@ -195,10 +195,12 @@ class ArenaListener implements Listener {
         }
 
         if (e instanceof EntityDamageByEntityEvent) {
-            Player damager = (Player) ((EntityDamageByEntityEvent) e).getDamager();
+            if (((EntityDamageByEntityEvent) e).getDamager() instanceof Player) {
+                Player damager = (Player) ((EntityDamageByEntityEvent) e).getDamager();
 
-            if (damager != null && (plugin.inArena(damager) || plugin.isSpectator(damager))) {
-                e.setCancelled();
+                if ((plugin.inArena(damager) || plugin.isSpectator(damager))) {
+                    e.setCancelled();
+                }
             }
         }
     }
