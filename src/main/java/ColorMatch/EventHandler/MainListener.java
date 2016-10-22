@@ -374,7 +374,7 @@ public class MainListener implements Listener {
 
                 switch (TextFormat.clean(item.getCustomName()).toLowerCase().trim()) {
                     case "start position":
-                        item.setCustomName(""+TextFormat.RESET + TextFormat.RED + "Start position");
+                        item.setCustomName("" + TextFormat.RESET + TextFormat.RED + "Start position");
                         p.getInventory().setItemInHand(item);
                         p.getInventory().sendHeldItem(p);
 
@@ -382,7 +382,7 @@ public class MainListener implements Listener {
                         p.sendMessage(plugin.getLanguage().translateString("setupmode.startpos", String.valueOf(b.x), String.valueOf(b.y), String.valueOf(b.z)));
                         break;
                     case "floor position":
-                        item.setCustomName(""+TextFormat.RESET + TextFormat.RED + "Floor position");
+                        item.setCustomName("" + TextFormat.RESET + TextFormat.RED + "Floor position");
                         p.getInventory().setItemInHand(item);
                         p.getInventory().sendHeldItem(p);
 
@@ -393,7 +393,7 @@ public class MainListener implements Listener {
                         p.sendMessage(plugin.getLanguage().translateString("setupmode.floorpos", String.valueOf(b.x), String.valueOf(b.y), String.valueOf(b.z)));
                         break;
                     case "spectator spawn":
-                        item.setCustomName(""+TextFormat.RESET + TextFormat.RED + "Spectator spawn");
+                        item.setCustomName("" + TextFormat.RESET + TextFormat.RED + "Spectator spawn");
                         p.getInventory().setItemInHand(item);
                         p.getInventory().sendHeldItem(p);
 
@@ -401,7 +401,7 @@ public class MainListener implements Listener {
                         p.sendMessage(plugin.getLanguage().translateString("setupmode.spectatorspawn", String.valueOf(b.x), String.valueOf(b.y), String.valueOf(b.z)));
                         break;
                     case "join sign":
-                        item.setCustomName(""+TextFormat.RESET + TextFormat.RED + "Join sign");
+                        item.setCustomName("" + TextFormat.RESET + TextFormat.RED + "Join sign");
                         p.getInventory().setItemInHand(item);
                         p.getInventory().sendHeldItem(p);
 

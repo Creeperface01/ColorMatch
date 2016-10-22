@@ -240,7 +240,7 @@ public class Arena extends ArenaManager implements Listener {
             this.winners.add(p);
         }
 
-        if(players.size() > 0) {
+        if (players.size() > 0) {
             plugin.getStats().updateStats(p.getName(), false, getRound());
         }
 
@@ -355,7 +355,7 @@ public class Arena extends ArenaManager implements Listener {
                 int maxZ = z + 1;
 
                 if (color == this.currentColor) {
-                    if(colorCount >= maxColorCount){
+                    if (colorCount >= maxColorCount) {
                         color += color < 15 ? 1 : -1;
                     } else {
                         colorCount++;

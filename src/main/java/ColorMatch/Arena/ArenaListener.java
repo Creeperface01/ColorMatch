@@ -14,7 +14,6 @@ import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.player.*;
-import cn.nukkit.utils.TextFormat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -214,11 +213,11 @@ class ArenaListener implements Listener {
     }
 
     @EventHandler
-    public void onCommand(PlayerCommandPreprocessEvent e){
+    public void onCommand(PlayerCommandPreprocessEvent e) {
         Player p = e.getPlayer();
         String cmd = e.getMessage();
 
-        if(!p.isOp() && !cmd.toLowerCase().startsWith("/cm") && (plugin.inArena(p) || plugin.isSpectator(p))) {
+        if (!p.isOp() && !cmd.toLowerCase().startsWith("/cm") && (plugin.inArena(p) || plugin.isSpectator(p))) {
             p.sendMessage(plugin.plugin.getLanguage().translateString("game.commands"));
             e.setCancelled();
         }

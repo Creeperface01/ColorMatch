@@ -462,10 +462,10 @@ public class ColorMatch extends PluginBase {
 
         Item[] items = new Item[4];
 
-        items[0] = new ItemSwordGold().setCustomName(""+TextFormat.RESET + TextFormat.GREEN + "Start position");
-        items[1] = new ItemPickaxeGold().setCustomName(""+TextFormat.RESET + TextFormat.GREEN + "Floor position");
-        items[2] = new ItemAxeGold().setCustomName(""+TextFormat.RESET + TextFormat.GREEN + "Spectator spawn");
-        items[3] = new ItemHoeGold().setCustomName(""+TextFormat.RESET + TextFormat.GREEN + "Join sign");
+        items[0] = new ItemSwordGold().setCustomName("" + TextFormat.RESET + TextFormat.GREEN + "Start position");
+        items[1] = new ItemPickaxeGold().setCustomName("" + TextFormat.RESET + TextFormat.GREEN + "Floor position");
+        items[2] = new ItemAxeGold().setCustomName("" + TextFormat.RESET + TextFormat.GREEN + "Spectator spawn");
+        items[3] = new ItemHoeGold().setCustomName("" + TextFormat.RESET + TextFormat.GREEN + "Join sign");
 
         /*inv.setItem(0, new ItemSwordGold().setCustomName(TextFormat.RESET + TextFormat.GREEN + "Start position"));
         inv.setItem(1, new ItemPickaxeGold().setCustomName(TextFormat.RESET + TextFormat.GREEN + "Floor position"));
