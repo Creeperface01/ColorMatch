@@ -312,7 +312,7 @@ public class ColorMatch extends PluginBase {
                     arena.setup = true;
                     setters.put(sender.getName(), arena);
                     giveSetupTools((Player) sender);
-                    ((Player) sender).setAllowFlight(true);
+                    ((Player) sender).getAdventureSettings().setCanFly(true);
                     sender.sendMessage(getLanguage().translateString("setupmode.enable", arena.getName()));
                     break;
                 case "create":
