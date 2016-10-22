@@ -17,6 +17,7 @@ import cn.nukkit.event.player.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 class ArenaListener implements Listener {
@@ -142,7 +143,7 @@ class ArenaListener implements Listener {
         } else if (plugin.isSpectator(p)) {
             prefix = plugin.plugin.conf.getSpectatorChatFormat();
         } else {
-            for (CommandSender sender : recipients) {
+            for (CommandSender sender : new HashSet<>(recipients)) {
                 if (!(sender instanceof Player)) {
                     continue;
                 }

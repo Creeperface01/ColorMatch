@@ -126,7 +126,7 @@ public class Arena extends ArenaManager implements Listener {
         });
 
         this.round = -1;
-        scheduler.colorTime = -1;
+        scheduler.colorTime = 0;
         this.phase = PHASE_GAME;
         updateJoinSign();
         selectNewColor();
@@ -376,7 +376,9 @@ public class Arena extends ArenaManager implements Listener {
             }
         }
 
-        round++;
+        if(this.phase > PHASE_LOBBY) {
+            round++;
+        }
     }
 
     public void removeFloor() {
