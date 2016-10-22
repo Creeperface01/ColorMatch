@@ -1,5 +1,6 @@
 package ColorMatch;
 
+import ColorMatch.Arena.Arena;
 import ColorMatch.Economy.EconomyAPIProvider;
 import ColorMatch.Economy.EconomyProvider;
 import ColorMatch.Economy.LeetEconomyProvider;
@@ -18,17 +19,13 @@ import cn.nukkit.block.BlockIron;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.inventory.PlayerInventory;
-import cn.nukkit.item.ItemAxeGold;
-import cn.nukkit.item.ItemHoeGold;
-import cn.nukkit.item.ItemPickaxeGold;
-import cn.nukkit.item.ItemSwordGold;
+import cn.nukkit.item.*;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.TextFormat;
 import lombok.Getter;
-import ColorMatch.Arena.Arena;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -61,7 +58,7 @@ public class ColorMatch extends PluginBase {
     private static ColorMatch instance = null;
 
     @Override
-    public void onLoad(){
+    public void onLoad() {
         instance = this;
     }
 
@@ -69,33 +66,37 @@ public class ColorMatch extends PluginBase {
     public void onEnable() {
         new File(this.getDataFolder(), "arenas").mkdirs();
         boolean first = saveResource("config.yml");
-        saveResource("lang");
+        saveResource("lang/English.yml");
 
-        this.conf = new MainConfiguration();
-        if (!this.conf.init(getDataFolder()+"/config.yml", first)) {
+        this.conf = new MainConfiguration(this);
+        if (!this.conf.load(first)) {
             this.getServer().getPluginManager().disablePlugin(this);
             return;
         }
+
+        this.conf.save();
 
         initLanguage();
         initEconomy();
         initStats();
 
         reward = new Reward();
-        reward.init(this, conf.getSection("reward"));
+        reward.init(this, conf.getReward());
 
         this.getServer().getPluginManager().registerEvents(new MainListener(this), this);
         this.registerArenas();
     }
 
     public void onDisable() {
-        getLogger().debug("disabling all arenas...");
+        getServer().getLogger().debug(getLanguage().translateString("general.disable_all"));
 
         arenas.forEach((name, arena) -> {
-            getLogger().debug("disabling " + name + "...");
+            getServer().getLogger().debug(getLanguage().translateString("general.disable_arena", name));
             arena.disable();
             arena.save(false);
         });
+
+        stats.onDisable();
     }
 
     public static String getPrefix() {
@@ -109,11 +110,11 @@ public class ColorMatch extends PluginBase {
     }
 
     private void registerArenas() {
-        this.getLogger().info(TextFormat.GREEN + "Loading arenas...");
+        getServer().getLogger().info(getLanguage().translateString("general.load_all"));
         File arenas = new File(this.getDataFolder(), "arenas");
 
         if (!arenas.isDirectory()) {
-            this.getLogger().info(TextFormat.GREEN + "No arenas found");
+            getServer().getLogger().info(getLanguage().translateString("general.no_arenas"));
             return;
         }
 
@@ -125,7 +126,7 @@ public class ColorMatch extends PluginBase {
         });
 
         if (files == null || files.length == 0) {
-            this.getLogger().info(TextFormat.GREEN + "No arenas found");
+            getServer().getLogger().info(getLanguage().translateString("general.no_arenas"));
             return;
         }
 
@@ -134,7 +135,7 @@ public class ColorMatch extends PluginBase {
             String name = fileName.substring(0, fileName.length() - 4);
 
             if (registerArena(name, file)) {
-                this.getLogger().info(TextFormat.GRAY + name + TextFormat.GREEN + " - load successful");
+                getServer().getLogger().info(getLanguage().translateString("general.load_arena", name));
             } /*else {
                 this.getLogger().info(TextFormat.GRAY + file.getName()+TextFormat.RED+" load failed");
             }*/
@@ -164,68 +165,70 @@ public class ColorMatch extends PluginBase {
                 case "unload":
                 case "disable":
                     if (args.length != 2) {
-                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm disable <arena>");
+                        sender.sendMessage(getLanguage().translateString("commands.help.disable"));
                         return true;
                     }
 
                     if (arena == null) {
-                        sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' doesn't exist");
+                        sender.sendMessage(getLanguage().translateString("general.arena_doesnt_exist2", args[1]));
                         return true;
                     }
 
                     if (!arena.isEnabled()) {
-                        sender.sendMessage(getPrefix() + TextFormat.YELLOW + "Arena is already disabled");
+                        sender.sendMessage(getLanguage().translateString("general.arena_already_disabled"));
                         return true;
                     }
 
-                    sender.sendMessage(getPrefix() + TextFormat.GREEN + "Disabling arena " + TextFormat.YELLOW + arena.getName() + TextFormat.GREEN + "...");
+                    sender.sendMessage(getLanguage().translateString("commands.success.disable", arena.getName()));
                     boolean disabled = arena.disable();
                     break;
                 case "load":
                 case "enable":
                     if (args.length != 2) {
-                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm enable <arena>");
+                        sender.sendMessage(getLanguage().translateString("commands.help.enable"));
                         return true;
                     }
 
                     if (arena == null) {
-                        sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' doesn't exist");
+                        sender.sendMessage(getLanguage().translateString("general.arena_doesnt_exist2", args[1]));
                         return true;
                     }
 
                     if (arena.isEnabled()) {
-                        sender.sendMessage(getPrefix() + TextFormat.YELLOW + "Arena is already enabled");
+                        sender.sendMessage(getLanguage().translateString("general.arena_already_disabled"));
                         return true;
                     }
 
-                    sender.sendMessage(getPrefix() + TextFormat.GREEN + "Enabling arena " + TextFormat.YELLOW + arena.getName() + TextFormat.GREEN + "...");
+                    sender.sendMessage(getLanguage().translateString("commands.success.enable", arena.getName()));
 
                     if (!arena.enable()) {
-                        sender.sendMessage(getPrefix() + TextFormat.RED + "An error occurred during enabling");
+                        sender.sendMessage(getLanguage().translateString("commands.failure.enable"));
                         return true;
                     }
                     break;
                 case "start":
                     if (((sender instanceof Player) && args.length < 1) || (!(sender instanceof Player) && args.length != 2)) {
-                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm start [arena]");
+                        sender.sendMessage(getLanguage().translateString("commands.help.start"));
                         return true;
                     }
 
                     if (arena == null) {
-                        arena = getPlayerArena((Player) sender);
+                        if (sender instanceof Player) {
+                            arena = getPlayerArena((Player) sender);
+                        }
 
                         if (arena == null) {
-                            sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' doesn't exist");
+                            sender.sendMessage(getLanguage().translateString("general.arena_doesnt_exist2", args[1]));
                             return true;
                         }
                     }
 
                     arena.start(true);
-                    sender.sendMessage(getPrefix() + TextFormat.GREEN + "Arena started!");
+                    sender.sendMessage(getLanguage().translateString("commands.success.start"));
                     break;
                 case "stop":
                     if (((sender instanceof Player) && args.length < 1) || (!(sender instanceof Player) && args.length != 2)) {
-                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm start [arena]");
+                        sender.sendMessage(getLanguage().translateString("commands.help.stop"));
                         return true;
                     }
 
@@ -233,22 +236,22 @@ public class ColorMatch extends PluginBase {
                         arena = getPlayerArena((Player) sender);
 
                         if (arena == null) {
-                            sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' doesn't exist");
+                            sender.sendMessage(getLanguage().translateString("general.arena_doesnt_exist2", args[1]));
                             return true;
                         }
                     }
 
                     arena.stop();
-                    sender.sendMessage(getPrefix() + TextFormat.GREEN + "Arena stopped");
+                    sender.sendMessage(getLanguage().translateString("commands.success.stop"));
                     break;
                 case "join":
                     if (!(sender instanceof Player)) {
-                        sender.sendMessage(getPrefix() + TextFormat.RED + "Run this command in-game");
+                        sender.sendMessage(getLanguage().translateString("commands.failure.run_command_ingame"));
                         return true;
                     }
 
                     if (args.length != 2) {
-                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm join <arena>");
+                        sender.sendMessage(getLanguage().translateString("commands.help.join"));
                         return true;
                     }
 
@@ -256,7 +259,7 @@ public class ColorMatch extends PluginBase {
                         arena = getPlayerArena((Player) sender);
 
                         if (arena == null) {
-                            sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' doesn't exist");
+                            sender.sendMessage(getLanguage().translateString("general.arena_doesnt_exist2", args[1]));
                             return true;
                         }
                     }
@@ -265,7 +268,7 @@ public class ColorMatch extends PluginBase {
                     break;
                 case "leave":
                     if (!(sender instanceof Player)) {
-                        sender.sendMessage(getPrefix() + TextFormat.RED + "Run this command in-game");
+                        sender.sendMessage(getLanguage().translateString("commands.failure.run_command_ingame"));
                         return true;
                     }
 
@@ -273,7 +276,7 @@ public class ColorMatch extends PluginBase {
                         arena = getPlayerArena((Player) sender);
 
                         if (arena == null) {
-                            sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' doesn't exist");
+                            sender.sendMessage(getLanguage().translateString("general.arena_doesnt_exist2", args[1]));
                             return true;
                         }
                     }
@@ -286,22 +289,22 @@ public class ColorMatch extends PluginBase {
                     break;
                 case "set":
                     if (!(sender instanceof Player)) {
-                        sender.sendMessage(getPrefix() + TextFormat.RED + "Run this command in-game");
+                        sender.sendMessage(getLanguage().translateString("commands.failure.run_command_ingame"));
                         return true;
                     }
 
                     if (args.length != 2) {
-                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm set <arena>");
+                        sender.sendMessage(getLanguage().translateString("commands.help.set"));
                         return true;
                     }
 
                     if (arena == null) {
-                        sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' doesn't exist");
+                        sender.sendMessage(getLanguage().translateString("general.arena_doesnt_exist2", args[1]));
                         return true;
                     }
 
                     if (arena.getPhase() == Arena.PHASE_GAME) {
-                        sender.sendMessage(getPrefix() + TextFormat.RED + "Arena is running");
+                        sender.sendMessage(getLanguage().translateString("general.arena_running"));
                         return true;
                     }
 
@@ -309,16 +312,17 @@ public class ColorMatch extends PluginBase {
                     arena.setup = true;
                     setters.put(sender.getName(), arena);
                     giveSetupTools((Player) sender);
-                    sender.sendMessage(getPrefix() + TextFormat.YELLOW + "You are now editing arena " + TextFormat.BLUE + arena.getName());
+                    ((Player) sender).setAllowFlight(true);
+                    sender.sendMessage(getLanguage().translateString("setupmode.enable", arena.getName()));
                     break;
                 case "create":
                     if (args.length != 2) {
-                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm create <arena>");
+                        sender.sendMessage(getLanguage().translateString("commands.help.create"));
                         return true;
                     }
 
                     if (arena != null) {
-                        sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' already exists");
+                        sender.sendMessage(getLanguage().translateString("general.arena_doesnt_exist2", args[1]));
                         break;
                     }
 
@@ -326,7 +330,7 @@ public class ColorMatch extends PluginBase {
 
                     arenas.put(args[1].toLowerCase(), arena);
 
-                    sender.sendMessage(getPrefix() + TextFormat.GREEN + "Arena " + TextFormat.YELLOW + "'" + args[1].toLowerCase() + "'" + TextFormat.GREEN + " was successfully created");
+                    sender.sendMessage(getLanguage().translateString("commands.success.create", arena.getName()));
                     break;
                 case "remove":
                     break;
@@ -335,9 +339,9 @@ public class ColorMatch extends PluginBase {
                     break;
                 case "setlobby":
                 case "setmainlobby":
-                    if(args.length < 4){
-                        if(!(sender instanceof Player)) {
-                            sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm setlobby <x> <y> <z> [world]");
+                    if (args.length < 4) {
+                        if (!(sender instanceof Player)) {
+                            sender.sendMessage(getLanguage().translateString("commands.help.setlobby"));
                             break;
                         } else {
                             this.conf.setMainLobby((Player) sender);
@@ -351,26 +355,28 @@ public class ColorMatch extends PluginBase {
                             x = Integer.valueOf(args[1]);
                             y = Integer.valueOf(args[2]);
                             z = Integer.valueOf(args[3]);
-                        } catch (NumberFormatException e){
-                            sender.sendMessage(getPrefix() +TextFormat.RED+ "Invalid arguments." +"\n"+getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm setlobby <x> <y> <z> [world]");
+                        } catch (NumberFormatException e) {
+                            sender.sendMessage(getLanguage().translateString("commands.help.setlobby_player"));
                             break;
                         }
 
                         Level level = null;
 
-                        if(args.length > 4){
+                        if (args.length > 4) {
                             String world = args[4];
 
                             level = getServer().getLevelByName(world);
 
-                            if(level ==  null){
-                                if(!getServer().loadLevel(world)) {
-                                    sender.sendMessage(getPrefix() + TextFormat.RED + "World '" + world + "' doesn't exist");
+                            if (level == null) {
+                                if (!getServer().loadLevel(world)) {
+                                    sender.sendMessage(getLanguage().translateString("commands.failure.unknown_world", world));
                                     break;
                                 }
 
                                 level = getServer().getLevelByName(world);
                             }
+                        } else if (sender instanceof Player) {
+                            level = ((Player) sender).getLevel();
                         }
 
                         conf.setMainLobby(new Position(x, y, z, level != null ? level : getServer().getDefaultLevel()));
@@ -378,17 +384,17 @@ public class ColorMatch extends PluginBase {
                     break;
                 case "build":
                     if (args.length != 2 && args.length != 3) {
-                        sender.sendMessage(ColorMatch.getPrefix() + TextFormat.GRAY + "Use " + TextFormat.YELLOW + " /cm build <arena> [block]");
+                        sender.sendMessage(getLanguage().translateString("commands.help.build"));
                         return true;
                     }
 
                     Block b = new BlockIron();
 
-                    if(args.length == 3){
+                    if (args.length == 3) {
                         Block b2 = Utils.fromString(args[2]);
 
-                        if(b2.getId() == 0){
-                            sender.sendMessage(getPrefix()+TextFormat.RED+"Invalid block");
+                        if (b2.getId() == 0) {
+                            sender.sendMessage(getLanguage().translateString("commands.failure.invalid_block", args[2]));
                             return true;
                         } else {
                             b = b2;
@@ -396,11 +402,11 @@ public class ColorMatch extends PluginBase {
                     }
 
                     if (arena == null) {
-                        sender.sendMessage(getPrefix() + TextFormat.RED + "Arena '" + args[1] + "' doesn't exist");
+                        sender.sendMessage(getLanguage().translateString("general.arena_doesnt_exist2", args[1]));
                         return true;
                     }
 
-                    sender.sendMessage(getPrefix() + TextFormat.GREEN + "Building arena " + TextFormat.YELLOW + arena.getName() + TextFormat.GREEN + "...");
+                    sender.sendMessage(getLanguage().translateString("commands.success.build", arena.getName()));
 
                     sender.sendMessage(ArenaBuilder.build(arena, arena.getLevel(), b));
                     break;
@@ -414,17 +420,27 @@ public class ColorMatch extends PluginBase {
     }
 
     private String getHelp(CommandSender sender, int page) {
-        String help = TextFormat.GRAY + "Showing ColorMatch help page 1/1:";
+        String help = getLanguage().translateString("help.main", "1", "1");
 
-        if (sender.hasPermission("colormatch.command.start")) help += "\n" + TextFormat.YELLOW + "/cm start [arena]";
-        if (sender.hasPermission("colormatch.command.stop")) help += "\n" + TextFormat.YELLOW + "/cm stop [arena]";
-        if (sender.hasPermission("colormatch.command.join")) help += "\n" + TextFormat.YELLOW + "/cm join <arena>";
+        String arena = getLanguage().translateString("custom_words.arena", false);
+
+        if (sender.hasPermission("colormatch.command.start"))
+            help += "\n" + TextFormat.YELLOW + "/cm start [" + arena + "]";
+        if (sender.hasPermission("colormatch.command.stop"))
+            help += "\n" + TextFormat.YELLOW + "/cm stop [" + arena + "]";
+        if (sender.hasPermission("colormatch.command.join"))
+            help += "\n" + TextFormat.YELLOW + "/cm join <" + arena + ">";
         if (sender.hasPermission("colormatch.command.leave")) help += "\n" + TextFormat.YELLOW + "/cm leave";
-        if (sender.hasPermission("colormatch.command.enable")) help += "\n" + TextFormat.YELLOW + "/cm enable <arena>";
-        if (sender.hasPermission("colormatch.command.disable")) help += "\n" + TextFormat.YELLOW + "/cm disable <arena>";
-        if (sender.hasPermission("colormatch.command.disable")) help += "\n" + TextFormat.YELLOW + "/cm set <arena>";
-        if (sender.hasPermission("colormatch.command.disable")) help += "\n" + TextFormat.YELLOW + "/cm create <arena>";
-        if (sender.hasPermission("colormatch.command.disable")) help += "\n" + TextFormat.YELLOW + "/cm delete <arena>";
+        if (sender.hasPermission("colormatch.command.enable"))
+            help += "\n" + TextFormat.YELLOW + "/cm enable <" + arena + ">";
+        if (sender.hasPermission("colormatch.command.disable"))
+            help += "\n" + TextFormat.YELLOW + "/cm disable <" + arena + ">";
+        if (sender.hasPermission("colormatch.command.disable"))
+            help += "\n" + TextFormat.YELLOW + "/cm set <" + arena + ">";
+        if (sender.hasPermission("colormatch.command.disable"))
+            help += "\n" + TextFormat.YELLOW + "/cm create <" + arena + ">";
+        if (sender.hasPermission("colormatch.command.disable"))
+            help += "\n" + TextFormat.YELLOW + "/cm delete <" + arena + ">";
         if (sender.hasPermission("colormatch.command.help")) help += "\n" + TextFormat.YELLOW + "/cm help";
 
         return help;
@@ -444,24 +460,32 @@ public class ColorMatch extends PluginBase {
         PlayerInventory inv = p.getInventory();
         inv.clearAll();
 
-        inv.setItem(0, new ItemSwordGold().setCustomName(TextFormat.RESET + TextFormat.GREEN + "Set start position"));
-        inv.setItem(1, new ItemPickaxeGold().setCustomName(TextFormat.RESET + TextFormat.GREEN + "Set floor position"));
-        inv.setItem(2, new ItemAxeGold().setCustomName(TextFormat.RESET + TextFormat.GREEN + "Set spectator spawn"));
-        inv.setItem(3, new ItemHoeGold().setCustomName(TextFormat.RESET + TextFormat.GREEN + "Set join sign"));
+        Item[] items = new Item[4];
+
+        items[0] = new ItemSwordGold().setCustomName(""+TextFormat.RESET + TextFormat.GREEN + "Start position");
+        items[1] = new ItemPickaxeGold().setCustomName(""+TextFormat.RESET + TextFormat.GREEN + "Floor position");
+        items[2] = new ItemAxeGold().setCustomName(""+TextFormat.RESET + TextFormat.GREEN + "Spectator spawn");
+        items[3] = new ItemHoeGold().setCustomName(""+TextFormat.RESET + TextFormat.GREEN + "Join sign");
+
+        /*inv.setItem(0, new ItemSwordGold().setCustomName(TextFormat.RESET + TextFormat.GREEN + "Start position"));
+        inv.setItem(1, new ItemPickaxeGold().setCustomName(TextFormat.RESET + TextFormat.GREEN + "Floor position"));
+        inv.setItem(2, new ItemAxeGold().setCustomName(TextFormat.RESET + TextFormat.GREEN + "Spectator spawn"));
+        inv.setItem(3, new ItemHoeGold().setCustomName(TextFormat.RESET + TextFormat.GREEN + "Join sign"));*/
 
         for (int i = 0; i < 4; i++) {
+            inv.setItem(i, items[i]);
             inv.setHotbarSlotIndex(i, i);
         }
 
         inv.sendContents(p);
     }
 
-    private void initLanguage(){
-        File languages = new File(getDataFolder()+"/lang");
+    private void initLanguage() {
+        File languages = new File(getDataFolder() + "/lang");
         String lang = conf.getLanguage();
 
-        if(!languages.exists() || !languages.isDirectory()) {
-            getLogger().error("Could not load default language");
+        if (!languages.exists() || !languages.isDirectory()) {
+            getServer().getLogger().error("Could not load default language");
             return;
         } else {
             File[] files = languages.listFiles(new FilenameFilter() {
@@ -473,16 +497,16 @@ public class ColorMatch extends PluginBase {
 
             File langFile = null;
 
-            for(File l : files){
-                if(l.getName().toLowerCase().equals(lang+".yml")){
+            for (File l : files) {
+                if (l.getName().toLowerCase().equals(lang + ".yml")) {
                     langFile = l;
                     break;
                 }
             }
 
-            if(langFile == null){
-                getLogger().warning("Could not find language file '"+lang+".yml'. Selecting English as default language");
-                langFile = new File(getDataFolder()+"/lang/English.yml");
+            if (langFile == null) {
+                getServer().getLogger().warning("Could not find language file '" + lang + ".yml'. Selecting English as default language");
+                langFile = new File(getDataFolder() + "/lang/English.yml");
             }
 
             BaseLang baseLang = new BaseLang();
@@ -492,12 +516,12 @@ public class ColorMatch extends PluginBase {
         }
     }
 
-    private void initEconomy(){
+    private void initEconomy() {
         Plugin plugin = getServer().getPluginManager().getPlugin("EconomyAPI");
 
-        if(plugin != null){
+        if (plugin != null) {
             economy = new EconomyAPIProvider(plugin);
-        } else if((plugin = getServer().getPluginManager().getPlugin("Economy-LEET")) != null){
+        } else if ((plugin = getServer().getPluginManager().getPlugin("Economy-LEET")) != null) {
             economy = new LeetEconomyProvider(plugin);
         }
     }
@@ -505,7 +529,8 @@ public class ColorMatch extends PluginBase {
     private void initStats() {
         String stats = conf.getStats();
 
-        switch(stats.toLowerCase()){
+
+        switch (stats.toLowerCase()) {
             case "yml":
             case "yaml":
                 this.stats = new YamlStatsProvider();
@@ -518,8 +543,8 @@ public class ColorMatch extends PluginBase {
                 this.stats = new NoneProvider();
         }
 
-        if(!this.stats.init(this)){
-            getLogger().warning("Could not load selected stats provider");
+        if (!this.stats.init(this)) {
+            getServer().getLogger().warning("Could not load selected stats provider");
         }
     }
 }

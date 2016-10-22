@@ -20,7 +20,7 @@ public class PlayerWinArenaEvent extends PlayerEvent {
         return handlers;
     }
 
-    public PlayerWinArenaEvent(Player p, Arena a, Reward reward){
+    public PlayerWinArenaEvent(Player p, Arena a, Reward reward) {
         this.player = p;
         this.arena = a;
         this.reward = reward;

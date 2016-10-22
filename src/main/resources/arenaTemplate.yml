@@ -6,7 +6,7 @@ join_sign:
   world: "world"
 
 #name of arena world
-arena_world: "arena world"
+arena_world: "arenaWorld"
 
 start_position:
   x: 0

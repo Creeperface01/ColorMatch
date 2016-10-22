@@ -7,7 +7,7 @@ public class NoneProvider implements StatsProvider {
 
     @Override
     public boolean init(ColorMatch plugin) {
-        return false;
+        return true;
     }
 
     @Override
@@ -17,11 +17,16 @@ public class NoneProvider implements StatsProvider {
 
     @Override
     public boolean createNewUser(String name) {
-        return false;
+        return true;
     }
 
     @Override
     public void sendStats(Player p) {
+
+    }
+
+    @Override
+    public void onDisable() {
 
     }
 }

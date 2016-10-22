@@ -6,7 +6,6 @@ import cn.nukkit.block.*;
 import cn.nukkit.level.Level;
 import cn.nukkit.math.AxisAlignedBB;
 import cn.nukkit.math.Vector3;
-import cn.nukkit.utils.TextFormat;
 
 public class ArenaBuilder {
 
@@ -27,7 +26,7 @@ public class ArenaBuilder {
         int maxZ = (int) bb.maxZ + 1;
 
         if (minY < 5) {
-            return ColorMatch.getPrefix() + TextFormat.RED + "Can not generate. Floor Y is too low";
+            return ColorMatch.getInstance().getLanguage().translateString("arena_builder.failure");
         }
 
         int lavaY;
@@ -58,7 +57,7 @@ public class ArenaBuilder {
 
         for (int x = minX; x <= maxX; x++) {
             for (int z = minZ; z <= maxZ; z++) {
-                for(int y = floorY; y <= roofY; y++){
+                for (int y = floorY; y <= roofY; y++) {
                     level.setBlock(v.setComponents(x, y, z), air, true, false);
                 }
             }
@@ -107,6 +106,6 @@ public class ArenaBuilder {
 
         cfg.resetFloor();
 
-        return ColorMatch.getPrefix() + TextFormat.GREEN + "Arena was successfully generated " + TextFormat.GRAY + "(" + blocks + " blocks, " + (System.currentTimeMillis() - time) / 1000 + " seconds)";
+        return ColorMatch.getInstance().getLanguage().translateString("arena_builder.success", String.valueOf(blocks), String.valueOf((System.currentTimeMillis() - time) / 1000));
     }
 }

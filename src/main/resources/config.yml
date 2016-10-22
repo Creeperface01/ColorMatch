@@ -1,5 +1,5 @@
 #DO NOT CHANGE THIS!!!
-version: 1
+version: 2
 
 #game language
 language: English
@@ -30,17 +30,12 @@ start_time: 30
 save_inventory: true
 
 #stats provider (yaml, mysql) | set to 'none' if you dont want to save stats
-stats_provider: yaml
+stats_provider: none
 
-#For MySQL:
-#stats_provider_settings:
-#  host: "127.0.0.1"
-#  port: 3306
-#  user: "user"
-#  password: "password"
-#  database: "databaseName"
-
-stats_provider_settings: []
+#Chat format ( variables: {MESSAGE} {PLAYER} )
+chat:
+  game: "&7[&aGAME&7]&e&r {PLAYER} &3>&7 {MESSAGE}"
+  spectator: "&7[&eSPECTATE&7]&e&r {PLAYER} &3>&7 {MESSAGE}"
 
 reward:
   enable: false

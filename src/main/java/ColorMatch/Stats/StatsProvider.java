@@ -12,4 +12,6 @@ public interface StatsProvider {
     boolean createNewUser(String name);
 
     void sendStats(Player p);
+
+    void onDisable();
 }

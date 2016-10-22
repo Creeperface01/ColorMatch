@@ -1,29 +1,35 @@
 package ColorMatch;
 
-import ColorMatch.Lang.BaseLang;
 import cn.nukkit.Server;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
-import cn.nukkit.utils.Config;
+import cn.nukkit.level.generator.Generator;
+import cn.nukkit.utils.ConfigSection;
+import cn.nukkit.utils.SimpleConfig;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.File;
-import java.io.FilenameFilter;
+import java.util.ArrayList;
 
-public class MainConfiguration extends Config{
+public class MainConfiguration extends SimpleConfig {
 
     @Setter
     @Getter
+    @Path("min_players")
     private int minPlayers = 0;
 
     @Setter
     @Getter
+    @Path("max_players")
     private int maxPlayers = 0;
 
     @Setter
     @Getter
+    @Skip
     private Position mainLobby = null;
+
+    @Path("main_lobby")
+    private ConfigSection lobby = null;
 
     @Setter
     @Getter
@@ -31,25 +37,114 @@ public class MainConfiguration extends Config{
 
     @Setter
     @Getter
+    @Path("max_game_time")
     private int maxGameTime = 0;
 
     @Setter
     @Getter
+    @Path("start_time")
     private int startTime = 0;
 
     @Setter
     @Getter
+    @Path("save_inventory")
     private boolean saveInventory = true;
 
     @Getter
-    private String language = null;
+    @Path("language")
+    private String language = "english";
 
     @Getter
-    private String stats = null;
+    @Path("stats_provider")
+    private String stats = "none";
 
-    public boolean init(String file, boolean isFirst) {
+    @Getter
+    @Path("reward")
+    private ConfigSection reward = null;
+
+    @Getter
+    @Path("chat.game")
+    private String gameChatFormat = "&7[&aGAME&7]&e&r {PLAYER} &3>&7 {MESSAGE}";
+
+    @Getter
+    @Path("chat.spectator")
+    private String spectatorChatFormat = "&7[&eSPECTATE&7]&e&r {PLAYER} &3>&7 {MESSAGE}";
+
+    public MainConfiguration(ColorMatch plugin) {
+        super(plugin);
+        //language = "English";
+        //stats = "none";
+        //saveInventory = true;
+    }
+
+    public boolean load(boolean isFirst) {
+        if (!super.load()) {
+            return false;
+        }
+
+        Server server = Server.getInstance();
+
+        if (isFirst || lobby == null) {
+            mainLobby = server.getDefaultLevel().getSafeSpawn();
+
+            lobby = new ConfigSection();
+            lobby.set("world", mainLobby.getLevel().getName());
+            lobby.set("x", mainLobby.x);
+            lobby.set("y", mainLobby.y);
+            lobby.set("z", mainLobby.z);
+        } else {
+            String name = lobby.getString("world");
+            Level level;
+
+            if (name.trim().isEmpty()) {
+                level = server.getDefaultLevel();
+            } else {
+                level = server.getLevelByName(name);
+            }
+
+            if (level == null && !server.loadLevel(name) && !server.generateLevel(name, 0, Generator.getGenerator(Generator.TYPE_FLAT))) {
+                ColorMatch.getInstance().getLogger().warning("level " + name + " doesn't exist");
+                return false;
+            }
+
+            level = server.getLevelByName(name);
+
+            mainLobby = new Position(lobby.getDouble("main_lobby.x"), lobby.getDouble("main_lobby.y"), lobby.getDouble("main_lobby.z"), level);
+        }
+
+        gameChatFormat = gameChatFormat.replaceAll("&", "§");
+        spectatorChatFormat = spectatorChatFormat.replaceAll("&", "§");
+
+        if (reward == null || reward.isEmpty()) {
+            reward = new ConfigSection();
+            reward.set("enable", false);
+            reward.set("money", 0.0);
+            reward.set("items", new ArrayList<>());
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean save() {
+        lobby.set("world", mainLobby.getLevel().getName());
+        lobby.set("x", mainLobby.x);
+        lobby.set("y", mainLobby.y);
+        lobby.set("z", mainLobby.z);
+
+        return super.save();
+    }
+
+    /*public boolean init(String file, boolean isFirst) {
         if(!load(file, Config.YAML)){
             return false;
+        }
+
+        if(getInt("version") < 2){
+            set("stats_provider", "none");
+            set("reward.enable", true);
+            set("reward.money", 0.0);
+            set("reward.items", new Object[0]);
         }
 
         Server server = Server.getInstance();
@@ -86,12 +181,18 @@ public class MainConfiguration extends Config{
         }
 
         return true;
-    }
+    }*/
 
-    @Override
-    public boolean save(){
-
+    /*@Override
+    public boolean save() {
+        set("language", language);
+        Utils.putPositionHelper(this, "main_lobby", mainLobby);
+        set("min_players", );
+        set("max_players", );
+        set("max_game_time", );
+        set("start_time", );
+        set("save_inventory", );
 
         return super.save();
-    }
+    }*/
 }

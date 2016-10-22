@@ -21,9 +21,15 @@ public class Reward {
 
     public void init(ColorMatch plugin, ConfigSection section) {
         this.plugin = plugin;
+
+        if (section == null || section.isEmpty()) {
+            enabled = false;
+            return;
+        }
+
         enabled = section.getBoolean("enable");
 
-        if(!enabled){
+        if (!enabled) {
             return;
         }
 
@@ -33,11 +39,11 @@ public class Reward {
 
         List<Item> itemList = new ArrayList<>();
 
-        for(Map map : items){
+        for (Map map : items) {
             int id = (int) map.getOrDefault("id", 0);
             int damage = (int) map.getOrDefault("damage", 0);
 
-            if(id == 0){
+            if (id == 0) {
                 continue;
             }
 
@@ -48,7 +54,7 @@ public class Reward {
     }
 
     public void give(Player... players) {
-        if(!enabled){
+        if (!enabled) {
             return;
         }
 

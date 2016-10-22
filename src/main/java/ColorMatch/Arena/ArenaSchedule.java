@@ -3,7 +3,7 @@ package ColorMatch.Arena;
 import cn.nukkit.Player;
 import lombok.Getter;
 
-public class ArenaSchedule implements Runnable {
+class ArenaSchedule implements Runnable {
 
     private Arena plugin;
 

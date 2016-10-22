@@ -17,7 +17,7 @@ public class PlayerJoinArenaEvent extends PlayerEvent implements Cancellable {
         return handlers;
     }
 
-    public PlayerJoinArenaEvent(Player p, Arena a){
+    public PlayerJoinArenaEvent(Player p, Arena a) {
         this.player = p;
         this.arena = a;
     }

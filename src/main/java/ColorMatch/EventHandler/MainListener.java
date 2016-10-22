@@ -1,5 +1,6 @@
 package ColorMatch.EventHandler;
 
+import ColorMatch.Arena.Arena;
 import ColorMatch.ColorMatch;
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
@@ -10,26 +11,20 @@ import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.SignChangeEvent;
-import cn.nukkit.event.player.*;
+import cn.nukkit.event.player.PlayerChatEvent;
+import cn.nukkit.event.player.PlayerInteractEvent;
+import cn.nukkit.event.player.PlayerJoinEvent;
+import cn.nukkit.event.player.PlayerQuitEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemTool;
-import cn.nukkit.level.Level;
-import cn.nukkit.level.generator.Generator;
-import cn.nukkit.network.protocol.ContainerOpenPacket;
 import cn.nukkit.utils.TextFormat;
-import ColorMatch.Arena.Arena;
 
-import java.awt.*;
-import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainListener implements Listener {
-
-    final int JOIN_SIGN = 0;
-    final int START_POS = 1;
-    final int SPEC_POS = 2;
-    final int FLOOR_POS = 3;
 
     private ColorMatch plugin;
 
@@ -48,7 +43,7 @@ public class MainListener implements Listener {
         plugin.getStats().createNewUser(p.getName().toLowerCase());
 
         if (plugin.getSetters().containsKey(p.getName())) {
-            p.sendMessage(ColorMatch.getPrefix() + TextFormat.YELLOW + "You are setting arena " + plugin.getSetters().get(p.getName()).getName());
+            p.sendMessage(plugin.getLanguage().translateString("setupmode.continue_join", plugin.getSetters().get(p.getName()).getName()));
         }
     }
 
@@ -93,7 +88,7 @@ public class MainListener implements Listener {
                 e.setCancelled();
 
                 if (!p.hasPermission("colormatch.sign.use")) {
-                    p.sendMessage("you do not have permission to perform this action");
+                    p.sendMessage(plugin.getLanguage().translateString("general.permission_message"));
                     return;
                 }
 
@@ -111,10 +106,10 @@ public class MainListener implements Listener {
                 } else {
                     arena = plugin.getArena(name);
 
-                    if(arena != null) {
+                    if (arena != null) {
                         arena.addToArena(p);
                     } else {
-                        p.sendMessage(plugin.getLanguage().translateString("commands.failure.arena_doesnt_exist"));
+                        p.sendMessage(plugin.getLanguage().translateString("general.arena_doesnt_exist"));
                     }
                 }
             }
@@ -140,13 +135,13 @@ public class MainListener implements Listener {
                         acceptQueue.remove(p.getName());
 
                         arena.save(true);
-                        p.sendMessage(ColorMatch.getPrefix() + TextFormat.GREEN + "Arena successfully saved");
+                        p.sendMessage(plugin.getLanguage().translateString("setupmode.save"));
 
                         plugin.getSetters().remove(p.getName());
                         break;
                     case "no":
                         acceptQueue.remove(p.getName());
-                        p.sendMessage(ColorMatch.getPrefix() + TextFormat.YELLOW + "You can continue in setting the arena");
+                        p.sendMessage(plugin.getLanguage().translateString("setupmode.continue"));
                         break;
                 }
 
@@ -177,7 +172,7 @@ public class MainListener implements Listener {
                 case "radius":
                 case "floorradius":
                     if (args.length != 2) {
-                        p.sendMessage(ColorMatch.getPrefix() + TextFormat.YELLOW + "use 'floorradius <radius>'");
+                        p.sendMessage(plugin.getLanguage().translateString("setupmode.help.radius"));
                         break;
                     }
 
@@ -186,33 +181,34 @@ public class MainListener implements Listener {
                     try {
                         radius = Integer.valueOf(args[1]);
                     } catch (NumberFormatException nfe) {
-                        p.sendMessage(ColorMatch.getPrefix() + TextFormat.RED + "Please enter valid number");
+                        p.sendMessage(plugin.getLanguage().translateString("setupmode.failure.number_error"));
                         break;
                     }
 
                     arena.setRadius(radius);
-                    p.sendMessage(ColorMatch.getPrefix() + TextFormat.GREEN + "Set floor radius to " + TextFormat.YELLOW + radius);
+                    p.sendMessage(plugin.getLanguage().translateString("setupmode.radius", String.valueOf(radius)));
                     break;
                 case "floortype":
                     if (args.length != 2) {
-                        p.sendMessage(ColorMatch.getPrefix() + TextFormat.YELLOW + "use 'floortype <type>'");
+                        p.sendMessage(plugin.getLanguage().translateString("setupmode.help.floor_type"));
                         break;
                     }
 
                     String type = args[1].toLowerCase().trim();
 
                     if (!(type.equals("wool") || type.equals("carpet") || type.equals("clay"))) {
-                        p.sendMessage(ColorMatch.getPrefix() + TextFormat.RED + "Please enter valid floor type");
+                        p.sendMessage(plugin.getLanguage().translateString("setupmode.failure.floor_type_error"));
                         break;
                     }
 
                     arena.setFloorType(args[1]);
-                    p.sendMessage(ColorMatch.getPrefix() + TextFormat.GREEN + "Set floor type to " + TextFormat.YELLOW + args[1]);
+                    p.sendMessage(plugin.getLanguage().translateString("setupmode.floor_type", args[1]));
                     break;
+                case "colortime":
                 case "colorinterval":
                 case "colorchangeinterval":
                     if (args.length != 2) {
-                        p.sendMessage(ColorMatch.getPrefix() + TextFormat.YELLOW + "use 'colorchangeinterval <seconds>'");
+                        p.sendMessage(plugin.getLanguage().translateString("setupmode.colortime"));
                         break;
                     }
 
@@ -221,17 +217,17 @@ public class MainListener implements Listener {
                     try {
                         interval = Integer.valueOf(args[1]);
                     } catch (NumberFormatException nfe) {
-                        p.sendMessage(ColorMatch.getPrefix() + TextFormat.RED + "Please enter valid number");
+                        p.sendMessage(plugin.getLanguage().translateString("setupmode.failure.number_error"));
                         break;
                     }
 
                     arena.setColorChangeInterval(interval);
-                    p.sendMessage(ColorMatch.getPrefix() + TextFormat.GREEN + "Set color change interval to " + TextFormat.YELLOW + interval);
+                    p.sendMessage(plugin.getLanguage().translateString("setupmode.colortime"));
                     break;
                 case "type":
                 case "arenatype":
                     if (args.length != 2) {
-                        p.sendMessage(ColorMatch.getPrefix() + TextFormat.YELLOW + "use 'arenatype <type>'");
+                        p.sendMessage(plugin.getLanguage().translateString("setupmode.help.game_type"));
                         break;
                     }
 
@@ -260,14 +256,14 @@ public class MainListener implements Listener {
                     }
 
                     if (arenaType == -1) {
-                        p.sendMessage(ColorMatch.getPrefix() + TextFormat.RED + "Please enter valid arena type");
+                        p.sendMessage(plugin.getLanguage().translateString("setupmode.failure.arena_type_error"));
                         break;
                     }
 
                     arena.setType(arenaType);
-                    p.sendMessage(ColorMatch.getPrefix() + TextFormat.GREEN + "Set arena type to " + TextFormat.YELLOW + args[1]);
+                    p.sendMessage(plugin.getLanguage().translateString("setupmode.game_type"));
                     break;
-                case "level":
+                /*case "level":
                 case "world":
                 case "arenaworld":
                     if (args.length != 2) {
@@ -299,13 +295,13 @@ public class MainListener implements Listener {
                     }
 
                     p.sendMessage(ColorMatch.getPrefix() + TextFormat.GREEN + "Set arena world to " + TextFormat.YELLOW + args[1]);
-                    break;
+                    break;*/
                 case "done":
                     List<String> fields = arena.checkConfiguration();
 
                     if (!fields.isEmpty()) {
-                        String message = ColorMatch.getPrefix() + TextFormat.YELLOW + "Arena is not set properly! Some arguments are missing (" + TextFormat.GRAY + String.join(", ", fields) + TextFormat.YELLOW + ")";
-                        message += "\n" + TextFormat.YELLOW + "Do you want to save the arena? <yes/no>";
+                        String message = plugin.getLanguage().translateString("setupmode.failure.missing_arguments", String.join(", ", fields));
+                        //message += "\n" + TextFormat.YELLOW + "Do you want to save the arena? <yes/no>";
 
                         p.sendMessage(message);
 
@@ -313,15 +309,18 @@ public class MainListener implements Listener {
                     } else {
                         arena.save(true);
                         arena.setup = false;
-                        p.sendMessage(ColorMatch.getPrefix() + TextFormat.GREEN + "Arena successfully saved. Type " + TextFormat.YELLOW + "/cm enable <" + arena.getName() + "> " + TextFormat.GREEN + "to load the arena");
+                        p.sendMessage(plugin.getLanguage().translateString("setupmode.save", arena.getName()));
                         p.getInventory().clearAll();
+                        if (p.isSurvival()) {
+                            p.setAllowFlight(false);
+                        }
                         plugin.getSetters().remove(p.getName());
                     }
                     break;
                 case "help":
                     String msg = "";
 
-                    msg += TextFormat.GRAY + "Showing help page " + TextFormat.GREEN + "1/1:";
+                    msg += plugin.getLanguage().translateString("setupmode.help.help", "1", "1");
                     msg += "\n" + TextFormat.YELLOW + "   floorradius <radius>";
                     msg += "\n" + TextFormat.YELLOW + "   floortype <wool/carpet/clay>";
                     msg += "\n" + TextFormat.YELLOW + "   colorinterval <seconds>";
@@ -331,7 +330,7 @@ public class MainListener implements Listener {
                     p.sendMessage(msg);
                     break;
                 default:
-                    p.sendMessage(ColorMatch.getPrefix() + TextFormat.RED + "Unknown command. Type 'help' for help");
+                    p.sendMessage(plugin.getLanguage().translateString("setupmode.failure.unknown_command"));
                     break;
             }
         }
@@ -361,7 +360,7 @@ public class MainListener implements Listener {
 
             if (TextFormat.clean(line1.toLowerCase()).trim().equals("[cm]")) {
                 if (!p.hasPermission("colormatch.sign.break")) {
-                    p.sendMessage("you do not have permission to perform this action");
+                    p.sendMessage(plugin.getLanguage().translateString("general.permission_message"));
                     e.setCancelled();
                 }
             }
@@ -374,38 +373,40 @@ public class MainListener implements Listener {
                 e.setCancelled();
 
                 switch (TextFormat.clean(item.getCustomName()).toLowerCase().trim()) {
-                    case "set start position":
-                        item.setCustomName(TextFormat.RESET + TextFormat.RED + "Set start position");
+                    case "start position":
+                        item.setCustomName(""+TextFormat.RESET + TextFormat.RED + "Start position");
                         p.getInventory().setItemInHand(item);
                         p.getInventory().sendHeldItem(p);
 
                         arena.setStartPos(b);
-                        p.sendMessage(ColorMatch.getPrefix() + TextFormat.GREEN + "Set start position to " + TextFormat.YELLOW + "X: " + TextFormat.BLUE + b.getFloorX() + TextFormat.YELLOW + " Y: " + TextFormat.BLUE + b.getFloorY() + TextFormat.YELLOW + " Z: " + TextFormat.BLUE + b.getFloorZ());
+                        p.sendMessage(plugin.getLanguage().translateString("setupmode.startpos", String.valueOf(b.x), String.valueOf(b.y), String.valueOf(b.z)));
                         break;
-                    case "set floor position":
-                        item.setCustomName(TextFormat.RESET + TextFormat.RED + "Set floor position");
+                    case "floor position":
+                        item.setCustomName(""+TextFormat.RESET + TextFormat.RED + "Floor position");
                         p.getInventory().setItemInHand(item);
                         p.getInventory().sendHeldItem(p);
 
                         arena.setFloorPos(b);
                         arena.recalculateBoundingBox();
-                        p.sendMessage(ColorMatch.getPrefix() + TextFormat.GREEN + "Set floor position to " + TextFormat.YELLOW + "X: " + TextFormat.BLUE + b.getFloorX() + TextFormat.YELLOW + " Y: " + TextFormat.BLUE + b.getFloorY() + TextFormat.YELLOW + " Z: " + TextFormat.BLUE + b.getFloorZ());
+                        arena.setWorld(b.getLevel().getFolderName());
+                        arena.setLevel(b.getLevel());
+                        p.sendMessage(plugin.getLanguage().translateString("setupmode.floorpos", String.valueOf(b.x), String.valueOf(b.y), String.valueOf(b.z)));
                         break;
-                    case "set spectator spawn":
-                        item.setCustomName(TextFormat.RESET + TextFormat.RED + "Set spectator spawn");
+                    case "spectator spawn":
+                        item.setCustomName(""+TextFormat.RESET + TextFormat.RED + "Spectator spawn");
                         p.getInventory().setItemInHand(item);
                         p.getInventory().sendHeldItem(p);
 
                         arena.setSpectatorPos(b);
-                        p.sendMessage(ColorMatch.getPrefix() + TextFormat.GREEN + "Set spectator spawn position to " + TextFormat.YELLOW + "X: " + TextFormat.BLUE + b.getFloorX() + TextFormat.YELLOW + " Y: " + TextFormat.BLUE + b.getFloorY() + TextFormat.YELLOW + " Z: " + TextFormat.BLUE + b.getFloorZ());
+                        p.sendMessage(plugin.getLanguage().translateString("setupmode.spectatorspawn", String.valueOf(b.x), String.valueOf(b.y), String.valueOf(b.z)));
                         break;
-                    case "set join sign":
-                        item.setCustomName(TextFormat.RESET + TextFormat.RED + "Set join sign");
+                    case "join sign":
+                        item.setCustomName(""+TextFormat.RESET + TextFormat.RED + "Join sign");
                         p.getInventory().setItemInHand(item);
                         p.getInventory().sendHeldItem(p);
 
                         arena.setJoinSign(b);
-                        p.sendMessage(ColorMatch.getPrefix() + TextFormat.GREEN + "Set join sign to " + TextFormat.YELLOW + "X: " + TextFormat.BLUE + b.getFloorX() + TextFormat.YELLOW + " Y: " + TextFormat.BLUE + b.getFloorY() + TextFormat.YELLOW + " Z: " + TextFormat.BLUE + b.getFloorZ());
+                        p.sendMessage(plugin.getLanguage().translateString("setupmode.joinsign", String.valueOf(b.x), String.valueOf(b.y), String.valueOf(b.z)));
                         break;
                     default:
                         e.setCancelled(false);
@@ -423,7 +424,7 @@ public class MainListener implements Listener {
         if (TextFormat.clean(line1.toLowerCase()).trim().equals("[cm]")) {
             if (!p.hasPermission("colormatch.sign.create")) {
                 e.setCancelled();
-                p.sendMessage(ColorMatch.getPrefix() + TextFormat.RED + "You do not have permissions to do that");
+                p.sendMessage(plugin.getLanguage().translateString("general.permission_message"));
                 return;
             }
 
@@ -439,7 +440,7 @@ public class MainListener implements Listener {
                 Arena arena = plugin.getArena(line2);
 
                 if (arena == null) {
-                    p.sendMessage(ColorMatch.getPrefix() + TextFormat.RED + "Arena doesn't exist");
+                    p.sendMessage(plugin.getLanguage().translateString("general.arena_doesnt_exist"));
                     e.setCancelled();
                     return;
                 }
@@ -450,7 +451,7 @@ public class MainListener implements Listener {
                 e.setLine(3, "");
             }
 
-            p.sendMessage(ColorMatch.getPrefix() + TextFormat.GREEN + "Sign successfully created");
+            p.sendMessage(plugin.getLanguage().translateString("general.create_sign"));
         }
     }
 }

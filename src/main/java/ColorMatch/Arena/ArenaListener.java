@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 
-public class ArenaListener implements Listener {
+class ArenaListener implements Listener {
 
     private Arena plugin;
 
@@ -63,7 +63,7 @@ public class ArenaListener implements Listener {
             e.setCancelled();
 
             if (!p.hasPermission("colormatch.sign.use")) {
-                p.sendMessage(TextFormat.RED + "you do not have permission to perform this action");
+                p.sendMessage(plugin.plugin.getLanguage().translateString("permission_message", false));
                 return;
             }
             plugin.addToArena(p);
@@ -92,7 +92,7 @@ public class ArenaListener implements Listener {
 
             if (b.equals(plugin.getJoinSign())) {
                 if (!p.hasPermission("colormatch.sign.break")) {
-                    p.sendMessage(TextFormat.RED + "you do not have permission to perform this action");
+                    p.sendMessage(plugin.plugin.getLanguage().translateString("permission_message", false));
                     e.setCancelled();
                 }
             }
@@ -130,7 +130,7 @@ public class ArenaListener implements Listener {
         String prefix = "";
 
         if (plugin.inArena(p)) {
-            prefix = TextFormat.GRAY + "[" + TextFormat.GREEN + "GAME" + TextFormat.GRAY + "] " + TextFormat.WHITE + TextFormat.RESET;
+            prefix = plugin.plugin.conf.getGameChatFormat();
             /*String lastColor = "f";
 
             if(Utils.getLastColor(msg).toLowerCase().equals("f")){
@@ -141,7 +141,7 @@ public class ArenaListener implements Listener {
                 e.setMessage(TextFormat.GRAY + e.getMessage());
             }*/
         } else if (plugin.isSpectator(p)) {
-            prefix = TextFormat.GRAY + "[" + TextFormat.YELLOW + "SPECTATOR" + TextFormat.GRAY + "] " + TextFormat.WHITE + TextFormat.RESET;
+            prefix = plugin.plugin.conf.getSpectatorChatFormat();
         } else {
             for (CommandSender sender : recipients) {
                 if (!(sender instanceof Player)) {
@@ -160,7 +160,7 @@ public class ArenaListener implements Listener {
         }
 
         e.setCancelled();
-        plugin.messageArenaPlayers(prefix + " " + p.getDisplayName() + TextFormat.DARK_AQUA + " > " + TextFormat.GRAY + e.getMessage());
+        plugin.messageArenaPlayers(prefix.replaceAll("\\{PLAYER}", p.getDisplayName()).replaceAll("\\{MESSAGE}", e.getMessage()));
     }
 
     private static ArrayList<Integer> allowedCauses = new ArrayList<>(Arrays.asList(EntityDamageEvent.CAUSE_VOID, EntityDamageEvent.CAUSE_FALL, EntityDamageEvent.CAUSE_FIRE, EntityDamageEvent.CAUSE_FIRE_TICK, EntityDamageEvent.CAUSE_LAVA, EntityDamageEvent.CAUSE_CONTACT));
@@ -209,6 +209,17 @@ public class ArenaListener implements Listener {
         Player p = e.getPlayer();
 
         if (plugin.inArena(p) || plugin.isSpectator(p)) {
+            e.setCancelled();
+        }
+    }
+
+    @EventHandler
+    public void onCommand(PlayerCommandPreprocessEvent e){
+        Player p = e.getPlayer();
+        String cmd = e.getMessage();
+
+        if(!p.isOp() && !cmd.toLowerCase().startsWith("/cm") && (plugin.inArena(p) || plugin.isSpectator(p))) {
+            p.sendMessage(plugin.plugin.getLanguage().translateString("game.commands"));
             e.setCancelled();
         }
     }

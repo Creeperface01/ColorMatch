@@ -1,12 +1,8 @@
 package ColorMatch.Data;
 
-import cn.nukkit.block.Block;
-import cn.nukkit.level.Level;
-import cn.nukkit.level.Position;
-import cn.nukkit.math.AxisAlignedBB;
+import ColorMatch.Arena.Configuration;
 import lombok.Getter;
 import lombok.Setter;
-import ColorMatch.Arena.Configuration;
 
 public class SetupMode {
 

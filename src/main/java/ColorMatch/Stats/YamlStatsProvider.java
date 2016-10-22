@@ -12,7 +12,7 @@ public class YamlStatsProvider implements StatsProvider {
 
     @Override
     public boolean init(ColorMatch plugin) {
-        cfg = new Config(plugin.getDataFolder()+"/stats.yml", Config.YAML);
+        cfg = new Config(plugin.getDataFolder() + "/stats.yml", Config.YAML);
         Server.getInstance().getScheduler().scheduleDelayedRepeatingTask(new SaveTask(this), 300 * 20, 300 * 20);
         return true;
     }
@@ -21,7 +21,7 @@ public class YamlStatsProvider implements StatsProvider {
     public void updateStats(String name, boolean win, int rounds) {
         ConfigSection data = cfg.getSection(name.toLowerCase());
 
-        if(win) {
+        if (win) {
             data.set("wins", data.getInt("wins") + 1);
         } else {
             data.set("deaths", data.getInt("deaths") + 1);
@@ -32,7 +32,7 @@ public class YamlStatsProvider implements StatsProvider {
 
     @Override
     public boolean createNewUser(String name) {
-        if(cfg.exists(name.toLowerCase())){
+        if (cfg.exists(name.toLowerCase())) {
             return false;
         }
 
@@ -49,7 +49,7 @@ public class YamlStatsProvider implements StatsProvider {
     public void sendStats(Player p) {
         ConfigSection data = cfg.getSection(p.getName().toLowerCase());
 
-        if(data == null){
+        if (data == null) {
             return;
         }
 
@@ -67,12 +67,17 @@ public class YamlStatsProvider implements StatsProvider {
 
         YamlStatsProvider plugin;
 
-        SaveTask(YamlStatsProvider plugin){
+        SaveTask(YamlStatsProvider plugin) {
             this.plugin = plugin;
         }
 
-        public void run(){
+        public void run() {
             plugin.cfg.save(true);
         }
+    }
+
+    @Override
+    public void onDisable() {
+        cfg.save();
     }
 }

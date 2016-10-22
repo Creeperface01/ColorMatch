@@ -15,7 +15,7 @@ public class Utils {
 
     public static String getLastColor(String msg) {
         int i = 0;
-        char lastColor = "f".charAt(0);
+        char lastColor = 'f';
 
         for (char chr : msg.toCharArray()) {
             String str = Character.toString(chr);
@@ -75,5 +75,9 @@ public class Utils {
         if (b.length != 1) meta = Integer.valueOf(b[1]) & 0xFFFF;
 
         return Block.get(id, meta);
+    }
+
+    public static Vector3 positionToVector(Position pos) {
+        return new Vector3(pos.x, pos.y, pos.z);
     }
 }

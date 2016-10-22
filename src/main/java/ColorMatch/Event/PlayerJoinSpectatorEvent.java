@@ -16,7 +16,7 @@ public class PlayerJoinSpectatorEvent extends PlayerEvent {
         return handlers;
     }
 
-    public PlayerJoinSpectatorEvent(Player p, Arena a){
+    public PlayerJoinSpectatorEvent(Player p, Arena a) {
         this.player = p;
         this.arena = a;
     }

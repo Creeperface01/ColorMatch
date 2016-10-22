@@ -16,7 +16,7 @@ public class PlayerQuitArenaEvent extends PlayerEvent {
         return handlers;
     }
 
-    public PlayerQuitArenaEvent(Player p, Arena a){
+    public PlayerQuitArenaEvent(Player p, Arena a) {
         this.player = p;
         this.arena = a;
     }
