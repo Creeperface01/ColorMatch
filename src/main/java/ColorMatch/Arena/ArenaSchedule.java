@@ -11,9 +11,9 @@ class ArenaSchedule implements Runnable {
         this.plugin = plugin;
     }
 
-    public int time = 0;
-    public int colorTime = 0;
-    public int startTime = 0;
+    public int time = 5;
+    public int colorTime = 5;
+    public int startTime = 5; // more 5 secounds
 
     @Getter
     public int id = 0;

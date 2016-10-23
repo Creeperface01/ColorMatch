@@ -126,7 +126,7 @@ public class Arena extends ArenaManager implements Listener {
         });
 
         this.round = -1;
-        scheduler.colorTime = 0;
+        scheduler.colorTime = 5; // 5 secounds man
         this.phase = PHASE_GAME;
         updateJoinSign();
         selectNewColor();
@@ -141,9 +141,9 @@ public class Arena extends ArenaManager implements Listener {
             removeSpectator(p);
         }
 
-        this.round = -1;
-        scheduler.time = 0;
-        scheduler.colorTime = 0;
+        this.round = -1; // TODO : Add rounds in config :D . If you want or no
+        scheduler.time = 5; // again nab
+        scheduler.colorTime = 5; // 5 secounds nab
         updateJoinSign();
         resetFloor();
         winners.clear();
@@ -236,7 +236,7 @@ public class Arena extends ArenaManager implements Listener {
         messageArenaPlayers(plugin.getLanguage().translateString("game.death", p.getDisplayName(), String.valueOf(players.size() - 1)));
         players.remove(p.getName().toLowerCase());
 
-        if (this.players.size() <= 2) {
+        if (this.players.size() <= 3) { // why 2? 3 is correct. TOP 3.
             this.winners.add(p);
         }
 
