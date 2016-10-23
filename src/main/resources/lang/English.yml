@@ -33,7 +33,7 @@ game:
   #reward for win
   reward: "&aYou won %0 coins!"
   #end game message
-  end_game: "§6§l---------------------§r\n§5arena %0 has ended\n§4winners:\n§a1. %1\n§e2. %2\n§c3. %3\n§6§l---------------------"
+  end_game: "§6§l---------------------§r\n§5Arena %0 has ended\n§4Winners:\n§a1. %1\n§e2. %2\n§c3. %3\n§6§l---------------------"
 ###################
 #Commands messages#
 ###################
