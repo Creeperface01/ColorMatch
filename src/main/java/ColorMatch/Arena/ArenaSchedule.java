@@ -37,8 +37,8 @@ class ArenaSchedule implements Runnable {
             plugin.players.values().forEach((Player p) -> p.setExperience(0, maxTime - startTime));
 
             if (startTime >= plugin.plugin.conf.getStartTime()) {
-                plugin.start();
-                startTime = 0;
+                plugin.start(5);
+                startTime = 5;
             }
         }
     }
@@ -58,6 +58,8 @@ class ArenaSchedule implements Runnable {
                 plugin.selectNewColor();
                 plugin.resetFloor();
             }
+        } else {
+            plugin.start(5);
         }
 
         time++;
