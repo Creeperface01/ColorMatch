@@ -29,7 +29,7 @@ start_time: 30
 #save players inventory on join?
 save_inventory: true
 
-#stats provider (yaml, mysql) | set to 'none' if you dont want to save stats
+#stats provider (yaml, json, mysql, sqlite) | set to 'none' if you dont want to save stats
 stats_provider: none
 
 #Chat format ( variables: {MESSAGE} {PLAYER} )
@@ -46,5 +46,10 @@ reward:
 #  items:
 #  - id: 0
 #    damage: 0
-#  - id: 0
+#  - id: 245
 #    damage: 0
+#    name: "epic item"
+#    lore: ["hi", "this is", "really cool item"]
+#    enchants:
+#    - id: 0
+#      level: 4

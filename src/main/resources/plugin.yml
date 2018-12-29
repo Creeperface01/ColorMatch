@@ -1,7 +1,7 @@
-name: ColorMatch
+name: colorMatch
 version: "3.0"
 api: ["1.0.0"]
-main: ColorMatch.ColorMatch
+main: com.creeperface.nukkitx.colormatch.ColorMatch
 author: "CreeperFace"
 description: "ColorMatch minigame for nukkit"
 prefix: "§9[§cCM§9]§f"

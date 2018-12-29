@@ -103,13 +103,13 @@ setupmode:
   radius: "&aSet floor radius to &e%0"
 
 ##################################
-#ColorMatch help command messages#
+#colorMatch help command messages#
 ##################################
 help:
-  main: "&7Showing ColorMatch help page %0/%1:"
+  main: "&7Showing colorMatch help page %0/%1:"
   lobby: "\n- &2/cm lobby &l&5»&r&f Teleport to lobby"
   leave: "\n- &2/cm leave &l&5»&r&f Leave the arena"
-  join: "\n- &2/cm join &b<arena name> &l&5»&r&f Join to the Arena"
+  join: "\n- &2/cm join &b<arena name> &l&5»&r&f Join to the arena"
   start: "\n- &2/cm start &b[arena name] &l&5»&r&f Force start the arena"
   stop: "\n- &2/cm stop &b[arena name] &l&5»&r&f Force stop the arena"
   kick: "\n- &2/cm kick &b[arena name] [player name] [reason] &l&5»&r&f Kick player from arena"
@@ -119,14 +119,14 @@ help:
   build: "\n- &2/cm build &b<arena name> [block] &l&5»&r&f Build a simple arena"
 
 stats:
-  own: "&7Showing your ColorMatch stats:"
-  another: "&7Showing &9%0's&7 ColorMatch stats:"
+  own: "&7Showing your colorMatch stats:"
+  another: "&7Showing &9%0's&7 colorMatch stats:"
   wins: "&ewins: &7%0"
   deaths: "&edeaths: &7%0"
   rounds: "&erounds: &7%0"
 
 arena_builder:
-  success: "&Arena was successfully generated &7(%0 blocks, %1 seconds)"
+  success: "&arena was successfully generated &7(%0 blocks, %1 seconds)"
   failure: "&cCan not generate. Floor Y is too low"
 
 custom_words:
