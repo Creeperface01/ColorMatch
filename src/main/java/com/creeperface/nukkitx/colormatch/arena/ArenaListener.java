@@ -41,7 +41,7 @@ class ArenaListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.LOW)
     public void onInteract(PlayerInteractEvent e) {
         Action action = e.getAction();
 
@@ -119,7 +119,7 @@ class ArenaListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = false)
     public void onChat(PlayerChatEvent e) {
         Player p = e.getPlayer();
         String msg = e.getMessage();
@@ -186,7 +186,28 @@ class ArenaListener implements Listener {
             }
 
             if (plugin.inArena(p)) {
-                if (plugin.phase == Arena.PHASE_LOBBY || !allowedCauses.contains(cause)) {
+                if (plugin.phase == Arena.PHASE_LOBBY) {
+                    e.setCancelled();
+                    return;
+                } else if (e instanceof EntityDamageByEntityEvent) {
+                    if (!plugin.aggressive) {
+                        e.setCancelled();
+                        return;
+                    }
+
+                    Entity entityDamager = ((EntityDamageByEntityEvent) e).getDamager();
+
+                    if (entityDamager instanceof Player) {
+                        Player dmgr = (Player) entityDamager;
+
+                        if (plugin.inArena(dmgr)) {
+                            if (plugin.getFieldIndexFromPos(dmgr) != plugin.getFieldIndexFromPos(p)) {
+                                e.setCancelled();
+                            }
+                            return;
+                        }
+                    }
+                } else if (!allowedCauses.contains(cause)) {
                     e.setCancelled();
                     return;
                 } else if (e.getFinalDamage() >= p.getHealth()) {
@@ -212,6 +233,10 @@ class ArenaListener implements Listener {
     public void onFoodChange(PlayerFoodLevelChangeEvent e) {
         Player p = e.getPlayer();
 
+        if (e.getFoodLevel() >= p.getFoodData().getLevel()) {
+            return;
+        }
+
         if (plugin.inArena(p) || plugin.isSpectator(p)) {
             e.setCancelled();
         }
@@ -222,7 +247,7 @@ class ArenaListener implements Listener {
         Player p = e.getPlayer();
         String cmd = e.getMessage();
 
-        if (!p.isOp() && !cmd.toLowerCase().startsWith("/cm") && (plugin.inArena(p) || plugin.isSpectator(p))) {
+        if (!p.hasPermission("colormatch.ingamecmd") && !cmd.toLowerCase().startsWith("/cm") && (plugin.inArena(p) || plugin.isSpectator(p))) {
             p.sendMessage(plugin.plugin.getLanguage().translateString("game.commands"));
             e.setCancelled();
         }

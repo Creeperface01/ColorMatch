@@ -8,15 +8,22 @@ import cn.nukkit.event.Listener;
 import cn.nukkit.inventory.PlayerInventory;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
+import cn.nukkit.level.Position;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.potion.Effect;
+import cn.nukkit.scheduler.TaskHandler;
 import cn.nukkit.utils.Config;
+import cn.nukkit.utils.DyeColor;
+import cn.nukkit.utils.TextFormat;
 import com.creeperface.nukkitx.colormatch.ColorMatch;
+import com.creeperface.nukkitx.colormatch.event.GameEndEvent;
 import com.creeperface.nukkitx.colormatch.event.PlayerJoinArenaEvent;
 import com.creeperface.nukkitx.colormatch.event.PlayerQuitArenaEvent;
-import com.creeperface.nukkitx.colormatch.event.PlayerWinArenaEvent;
+import com.creeperface.nukkitx.colormatch.utils.BossBar;
 import com.creeperface.nukkitx.colormatch.utils.Reward;
+import com.google.common.collect.Iterables;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.io.File;
 import java.util.*;
@@ -56,7 +63,14 @@ public class Arena extends ArenaManager implements Listener {
 
     public boolean starting = false;
 
-    protected Deque<Player> winners = new ArrayDeque<>();
+    @Getter
+    private long startTime;
+
+    protected ArrayDeque<WinnerEntry> winners = new ArrayDeque<>();
+
+    protected BossBar bossBar;
+
+    protected TaskHandler fastTask;
 
     public Arena(ColorMatch plugin, String name, File cfg) {
         load(cfg.getPath(), Config.YAML);
@@ -64,6 +78,7 @@ public class Arena extends ArenaManager implements Listener {
         super.plugin = this;
         this.listener = new ArenaListener(this);
         this.scheduler = new ArenaSchedule(this);
+        this.bossBar = new BossBar(plugin);
         this.plugin = plugin;
     }
 
@@ -74,8 +89,14 @@ public class Arena extends ArenaManager implements Listener {
 
         this.plugin.getServer().getPluginManager().registerEvents(listener, plugin);
         scheduler = new ArenaSchedule(this);
-        scheduler.id = this.plugin.getServer().getScheduler().scheduleRepeatingTask(scheduler, 20).getTaskId();
+        scheduler.id = this.plugin.getServer().getScheduler().scheduleRepeatingTask(plugin, scheduler, 20).getTaskId();
         this.enabled = true;
+
+        this.bossBar.setMaxHealth(this.colorChangeInterval * 10);
+        this.bossBar.setHealth(this.colorChangeInterval * 10);
+
+        this.bossBar.updateText(plugin.getLanguage().translateString("waiting_players", false, "0", plugin.conf.getMaxPlayers() + ""));
+
         updateJoinSign();
         resetFloor();
         return true;
@@ -113,8 +134,9 @@ public class Arena extends ArenaManager implements Listener {
 
         Effect effect = getGameEffect();
 
+        Position startPos = getStartPos().add(0.5, 0, 0.5);
         players.values().forEach(p -> {
-            p.teleport(getStartPos());
+            p.teleport(startPos);
             p.sendMessage(plugin.getLanguage().translateString("game.start_game"));
 
             if (effect != null) {
@@ -127,10 +149,17 @@ public class Arena extends ArenaManager implements Listener {
         this.round = -1;
         scheduler.colorTime = 0;
         scheduler.floor = true;
+        scheduler.floorResetedTick = plugin.getServer().getTick();
+
+        this.fastTask = this.plugin.getServer().getScheduler().scheduleRepeatingTask(plugin, new FastTask(this), 2);
+
+        startTime = System.currentTimeMillis();
 
         this.phase = PHASE_GAME;
         updateJoinSign();
         selectNewColor();
+
+        this.bossBar.updateInfo();
     }
 
     public void stop() {
@@ -145,36 +174,45 @@ public class Arena extends ArenaManager implements Listener {
         this.round = -1;
         scheduler.time = 0;
         scheduler.colorTime = 0;
+
+        if (this.fastTask != null) {
+            fastTask.cancel();
+        }
+
         updateJoinSign();
         resetFloor();
         winners.clear();
+
+        this.bossBar.updateText(plugin.getLanguage().translateString("waiting_players", false, "0", plugin.conf.getMaxPlayers() + ""));
     }
 
     public void endGame() {
         if (this.players.size() == 1) {
-            winners.add(this.players.values().stream().toArray(Player[]::new)[0]);
+            winners.add(new WinnerEntry(Iterables.getOnlyElement(this.players.values())));
         }
 
         if (!winners.isEmpty()) {
-            Player winner = winners.getFirst();
+            WinnerEntry winner = winners.getLast();
             Reward reward = plugin.getReward();
 
-            plugin.getStats().updateStats(winner.getName(), true, getRound());
+            plugin.getStats().updateStats(winner.player.getName(), true, getRound());
 
-            PlayerWinArenaEvent ev = new PlayerWinArenaEvent(winner, this, reward);
+            GameEndEvent ev = new GameEndEvent(winners, this, reward);
             plugin.getServer().getPluginManager().callEvent(ev);
 
-            reward.give(winner);
+            reward.give(winner.player);
         }
 
-        String message = plugin.getLanguage().translateString("game.end_game", getName());
+        String message = plugin.getLanguage().translateString("game.end_game", false, getName());
 
         for (int i = 1; i < 4; i++) {
             String replace = "---";
 
             if (!winners.isEmpty()) {
-                Player winner = winners.pop();
-                replace = winner.getDisplayName();
+                WinnerEntry winner = winners.removeLast();
+
+                long timeDiff = (winner.time - startTime) / 1000;
+                replace = winner.player.getDisplayName() + TextFormat.GRAY + "(" + String.format("%02d:%02d", timeDiff / 60, (timeDiff % 60)) + ")";
             }
 
             message = message.replaceAll("%" + i, replace);
@@ -186,6 +224,11 @@ public class Arena extends ArenaManager implements Listener {
     }
 
     public void addToArena(Player p) {
+        if (plugin.getPlayerArena(p) != null) {
+            p.sendMessage(plugin.getLanguage().translateString("game.already"));
+            return;
+        }
+
         if (setup) {
             p.sendMessage(plugin.getLanguage().translateString("general.arena_in_setup_mode"));
             return;
@@ -214,16 +257,22 @@ public class Arena extends ArenaManager implements Listener {
 
         messageArenaPlayers(plugin.getLanguage().translateString("game.join_others", p.getDisplayName(), String.valueOf(players.size() + 1), String.valueOf(plugin.conf.getMaxPlayers())));
 
+        resetPlayer(p);
         this.players.put(p.getName().toLowerCase(), p);
         updateJoinSign();
 
-        resetPlayer(p);
-        p.teleport(getStartPos());
+        p.teleport(getStartPos().add(0.5, 0, 0.5));
 
         SavedPlayer save = new SavedPlayer();
         save.save(p);
         saves.put(p.getName().toLowerCase(), save);
 
+        this.bossBar.updateText(plugin.getLanguage().translateString("general.waiting_players", false, this.players.size() + "", plugin.conf.getMaxPlayers() + ""));
+        this.bossBar.updateInfo();
+
+        this.bossBar.addPlayer(p);
+
+        p.setGamemode(0);
         p.sendMessage(plugin.getLanguage().translateString("game.join", getName()));
 
         //p.setDisplayName(TextFormat.GRAY + "[" + TextFormat.GREEN + "GAME" + TextFormat.GRAY + "] " + TextFormat.WHITE + TextFormat.RESET + " " + p.getDisplayName());
@@ -238,7 +287,7 @@ public class Arena extends ArenaManager implements Listener {
         players.remove(p.getName().toLowerCase());
 
         if (this.players.size() <= 2) {
-            this.winners.add(p);
+            this.winners.add(new WinnerEntry(p));
         }
 
         if (players.size() > 0) {
@@ -250,16 +299,16 @@ public class Arena extends ArenaManager implements Listener {
     }
 
     public void removeFromArena(Player p) {
-        PlayerQuitArenaEvent ev = new PlayerQuitArenaEvent(p, this);
-        plugin.getServer().getPluginManager().callEvent(ev);
-
         removeFromArena(p, true);
     }
 
     public void removeFromArena(Player p, boolean message) {
         this.players.remove(p.getName().toLowerCase());
+
+        PlayerQuitArenaEvent ev = new PlayerQuitArenaEvent(p, this);
+        plugin.getServer().getPluginManager().callEvent(ev);
+
         updateJoinSign();
-        //p.setDisplayName(p.getDisplayName().replaceAll(TextFormat.GRAY + "[" + TextFormat.GREEN + "GAME" + TextFormat.GRAY + "] " + TextFormat.WHITE + TextFormat.RESET + " ", ""));
 
         if (message) {
             messageArenaPlayers(plugin.getLanguage().translateString("game.leave_others", p.getDisplayName(), String.valueOf(players.size() - 1), String.valueOf(plugin.conf.getMaxPlayers())));
@@ -269,8 +318,14 @@ public class Arena extends ArenaManager implements Listener {
             }
         }
 
-        resetPlayer(p);
         p.teleport(plugin.conf.getMainLobby().getLevel().getSafeSpawn(plugin.conf.getMainLobby()));
+
+        resetPlayer(p);
+        this.bossBar.removePlayer(p);
+
+        this.bossBar.updateText(plugin.getLanguage().translateString("general.waiting_players", false, this.players.size() + "", plugin.conf.getMaxPlayers() + ""));
+        this.bossBar.updateInfo();
+
         SavedPlayer save = saves.remove(p.getName().toLowerCase());
 
         if (save != null) {
@@ -279,7 +334,7 @@ public class Arena extends ArenaManager implements Listener {
 
         if (phase == PHASE_GAME) {
             if (this.players.size() <= 2) {
-                this.winners.add(p);
+                this.winners.add(new WinnerEntry(p));
             }
 
             checkAlive();
@@ -288,8 +343,11 @@ public class Arena extends ArenaManager implements Listener {
 
     public void addSpectator(Player p) {
         resetPlayer(p);
-        p.teleport(getSpectatorPos());
+        p.teleport(getSpectatorPos().add(0.5, 0, 0.5));
         p.sendMessage(plugin.getLanguage().translateString("game.join_spectator"));
+        p.setGamemode(0);
+        bossBar.addPlayer(p);
+        bossBar.updateInfo();
         //p.setDisplayName(TextFormat.GRAY + "[" + TextFormat.YELLOW + "SPECTATOR" + TextFormat.GRAY + "] " + TextFormat.WHITE + TextFormat.RESET + " " + p.getDisplayName());
         this.spectators.put(p.getName().toLowerCase(), p);
     }
@@ -298,6 +356,7 @@ public class Arena extends ArenaManager implements Listener {
         //p.setDisplayName(p.getDisplayName().replaceAll(TextFormat.GRAY + "[" + TextFormat.YELLOW + "SPECTATOR" + TextFormat.GRAY + "] " + TextFormat.WHITE + TextFormat.RESET + " ", ""));
         this.spectators.remove(p.getName().toLowerCase());
         resetPlayer(p);
+        this.bossBar.removePlayer(p);
         p.teleport(plugin.conf.getMainLobby().getLevel().getSafeSpawn(plugin.conf.getMainLobby()));
 
         SavedPlayer save = saves.remove(p.getName().toLowerCase());
@@ -318,7 +377,7 @@ public class Arena extends ArenaManager implements Listener {
 
             for (int i = 0; i < 9 && i < inv.getSize(); i++) {
                 inv.setItem(i, item);
-                inv.setHotbarSlotIndex(i, i);
+                inv.setHeldItemSlot(i);
             }
 
             inv.sendContents(p);
@@ -329,6 +388,12 @@ public class Arena extends ArenaManager implements Listener {
             /*String msg = WoolColor.getColorName(currentColor) + "\n\n\n\n";
             p.sendPopup(msg);*/
         });
+
+        TextFormat chatColor = TextFormat.values()[new Random().nextInt(16)];
+
+        this.bossBar.setHealth(colorChangeInterval * 10);
+        this.bossBar.updateText(chatColor + DyeColor.getByWoolData(currentColor).getName());
+        this.bossBar.updateInfo();
     }
 
     public void resetFloor() {
@@ -339,15 +404,15 @@ public class Arena extends ArenaManager implements Listener {
         int colorCount = 0;
         int blockCount = 0;
 
-        int floorSize = (int) (((floor.maxX - floor.minX + 1) / 3) * ((floor.maxZ - floor.minZ + 1) / 3));
+        int floorSize = (int) (((floor.getMaxX() - floor.getMinX() + 1) / 3) * ((floor.getMaxZ() - floor.getMinZ() + 1) / 3));
 
         int randomBlock = random.nextInt(floorSize);
         int maxColorCount = floorSize / 25;
 
         //System.out.println("floor size: "+floorSize+"        max count: "+maxColorCount);
 
-        for (int x = (int) getFloor().minX + 1; x <= getFloor().maxX - 1; x += 3) {
-            for (int z = (int) getFloor().minZ + 1; z <= getFloor().maxZ - 1; z += 3) {
+        for (int x = (int) getFloor().getMinX() + 1; x <= getFloor().getMaxX() - 1; x += 3) {
+            for (int z = (int) getFloor().getMinZ() + 1; z <= getFloor().getMaxZ() - 1; z += 3) {
                 int color = random.nextInt(15);
 
                 int minX = x - 1;
@@ -398,8 +463,8 @@ public class Arena extends ArenaManager implements Listener {
             }
         }*/
 
-        for (int x = (int) getFloor().minX + 1; x <= getFloor().maxX - 1; x += 3) {
-            for (int z = (int) getFloor().minZ + 1; z <= getFloor().maxZ - 1; z += 3) {
+        for (int x = (int) getFloor().getMinX() + 1; x <= getFloor().getMaxX() - 1; x += 3) {
+            for (int z = (int) getFloor().getMinZ() + 1; z <= getFloor().getMaxZ() - 1; z += 3) {
                 int minX = x - 1;
                 int minZ = z - 1;
                 int maxX = x + 1;
@@ -418,5 +483,13 @@ public class Arena extends ArenaManager implements Listener {
                 }
             }
         }
+    }
+
+    @RequiredArgsConstructor
+    public static class WinnerEntry {
+
+        public final long time = System.currentTimeMillis();
+        public final Player player;
+
     }
 }

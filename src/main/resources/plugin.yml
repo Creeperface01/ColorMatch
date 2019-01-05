@@ -1,5 +1,5 @@
-name: colorMatch
-version: "3.0"
+name: ColorMatch
+version: "3.1"
 api: ["1.0.0"]
 main: com.creeperface.nukkitx.colormatch.ColorMatch
 author: "CreeperFace"
@@ -9,7 +9,7 @@ softdepend: ["DbLib"]
 
 commands:
   colormatch:
-    description: "main ColorMatch command"
+    description: "Main ColorMatch command"
     permission: "colormatch.command"
     default: "op"
     aliases: ["cm"]
@@ -27,6 +27,9 @@ permissions:
   colormatch.sign.use:
     description: "allows player to use join sign"
     default: true
+  colormatch.ingamecmd:
+    description: "allows player to use other commands in game"
+    default: op
   colormatch.command:
     description: "allows player to use all ColorMatch commands"
     default: op
@@ -55,15 +58,21 @@ permissions:
       colormatch.command.remove:
         description: "allows player to remove an arena"
         default: op
-      colormatch.command.set:
-        description: "allows player to set an arena"
+      colormatch.command.configure:
+        description: "allows player to configure an arena"
         default: op
       colormatch.command.help:
         description: "allows player to see all avalaible ColorMatch commands"
         default: true
       colormatch.command.build:
         description: "allows player to see all avalaible ColorMatch commands"
-        default: true
+        default: op
       colormatch.command.stats:
         description: "allows player to see all avalaible ColorMatch commands"
         default: true
+      colormatch.command.setlobby:
+        description: "allows player to change the default ColorMatch lobby"
+        default: op
+      colormatch.command.list:
+        description: "shows all available arenas"
+        default: op

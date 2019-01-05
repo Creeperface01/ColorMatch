@@ -1,15 +1,14 @@
 package com.creeperface.nukkitx.colormatch.arena;
 
 import cn.nukkit.Server;
-import cn.nukkit.block.Block;
-import cn.nukkit.block.BlockCarpet;
-import cn.nukkit.block.BlockTerracottaStained;
-import cn.nukkit.block.BlockWool;
+import cn.nukkit.block.*;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.generator.Generator;
 import cn.nukkit.math.AxisAlignedBB;
+import cn.nukkit.math.SimpleAxisAlignedBB;
 import cn.nukkit.utils.Config;
+import com.creeperface.nukkitx.colormatch.ColorMatch;
 import com.creeperface.nukkitx.colormatch.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
@@ -66,6 +65,10 @@ public class Configuration extends Config {
 
     @Getter
     @Setter
+    protected boolean aggressive;
+
+    @Getter
+    @Setter
     protected Level level = null;
 
     @Getter
@@ -73,8 +76,9 @@ public class Configuration extends Config {
     protected String world = null;
 
     protected boolean init() {
-        boolean right = true;
+        boolean correct = true;
 
+        ColorMatch plugin = ColorMatch.getInstance();
         Server server = Server.getInstance();
 
         if (exists("arena_world")) {
@@ -83,13 +87,13 @@ public class Configuration extends Config {
 
             //arena level
             if (level.trim().equals("") || (server.getLevelByName(level) == null && !server.loadLevel(level) && !server.generateLevel(level, 0, Generator.getGenerator("FLAT")))) {
-                server.getLogger().error("An error occurred while loading level " + level + " in arena " + ((Arena) this).getName());
-                right = false;
+                plugin.getLogger().error("An error occurred while loading level " + level + " in arena " + ((Arena) this).getName());
+                correct = false;
             }
 
             this.level = server.getLevelByName(level);
         } else {
-            right = false;
+            correct = false;
         }
 
         if (exists("join_sign") && exists("join_sign.world")) {
@@ -98,8 +102,8 @@ public class Configuration extends Config {
 
             if (joinLevel.trim().equals("") || (server.getLevelByName(joinLevel) == null && !server.loadLevel(joinLevel))) {
                 if (!server.generateLevel(joinLevel, 0, Generator.getGenerator("FLAT"))) {
-                    server.getLogger().error("An error occurred while loading level " + joinLevel + " in arena " + ((Arena) this).getName());
-                    right = false;
+                    plugin.getLogger().error("An error occurred while loading level " + joinLevel + " in arena " + ((Arena) this).getName());
+                    correct = false;
                 }
             }
 
@@ -107,25 +111,25 @@ public class Configuration extends Config {
                 joinSign = new Position(getInt("join_sign.x"), getInt("join_sign.y"), getInt("join_sign.z"), server.getLevelByName(joinLevel));
             }
         } else {
-            right = false;
+            correct = false;
         }
         //leaveSign = new Position(getInt("leave_sign.x"), getInt("leave_sign.y"), getInt("leave_sign.z"), this.level);
         if (exists("start_position")) {
-            startPos = new Position(getInt("start_position.x") + 0.5, getInt("start_position.y"), getInt("start_position.z") + 0.5, this.level);
+            startPos = new Position(getInt("start_position.x"), getInt("start_position.y"), getInt("start_position.z"), this.level);
         } else {
-            right = false;
+            correct = false;
         }
 
         if (exists("spectator_position")) {
-            spectatorPos = new Position(getInt("spectator_position.x") + 0.5, getInt("spectator_position.y"), getInt("spectator_position.z") + 0.5, this.level);
+            spectatorPos = new Position(getInt("spectator_position.x"), getInt("spectator_position.y"), getInt("spectator_position.z"), this.level);
         } else {
-            right = false;
+            correct = false;
         }
 
         if (exists("floor_position")) {
-            floorPos = new Position(getInt("floor_position.x") + 0.5, getInt("floor_position.y"), getInt("floor_position.z") + 0.5, this.level);
+            floorPos = new Position(getInt("floor_position.x"), getInt("floor_position.y"), getInt("floor_position.z"), this.level);
         } else {
-            right = false;
+            correct = false;
         }
 
         radius = getInt("floor_radius", 4);
@@ -134,8 +138,8 @@ public class Configuration extends Config {
         int type = getInt("type", 0);
 
         if (type < 0 || type > 3) {
-            server.getLogger().error("wrong arena type in arena " + ((Arena) this).getName());
-            right = false;
+            plugin.getLogger().error("wrong arena type in arena " + ((Arena) this).getName());
+            correct = false;
         }
 
         this.type = type;
@@ -154,14 +158,20 @@ public class Configuration extends Config {
                 this.floorMaterial = new BlockCarpet();
                 this.floorType = "carpet";
                 break;
+            case "glass":
+                this.floorMaterial = new BlockGlassStained();
+                this.floorType = "glass";
+                break;
             default:
                 this.floorMaterial = new BlockWool();
-                server.getLogger().error("Unsupported floor material '" + floorMaterial + "' in arena " + ((Arena) this).getName());
+                plugin.getLogger().error("Unsupported floor material '" + floorMaterial + "' in arena " + ((Arena) this).getName());
                 break;
         }
 
+        this.aggressive = getBoolean("aggressive", false);
+
         recalculateBoundingBox();
-        return right;
+        return correct;
     }
 
     @Override
@@ -184,6 +194,7 @@ public class Configuration extends Config {
         set("floor_type", floorType);
         set("color_change_interval", colorChangeInterval);
         set("type", type);
+        set("aggressive", this.aggressive);
 
         return super.save(async);
     }
@@ -216,7 +227,7 @@ public class Configuration extends Config {
 
     public void recalculateBoundingBox() {
         if (this.floorPos != null) {
-            this.floor = new AxisAlignedBB(floorPos.getFloorX() - (radius * 3) - 1, floorPos.getFloorY(), floorPos.getFloorZ() - (radius * 3) - 1, floorPos.getFloorX() + (radius * 3) + 1, floorPos.getFloorY(), floorPos.getFloorZ() + (radius * 3) + 1);
+            this.floor = new SimpleAxisAlignedBB(floorPos.getFloorX() - (radius * 3) - 1, floorPos.getFloorY(), floorPos.getFloorZ() - (radius * 3) - 1, floorPos.getFloorX() + (radius * 3) + 1, floorPos.getFloorY(), floorPos.getFloorZ() + (radius * 3) + 1);
         }
     }
 }

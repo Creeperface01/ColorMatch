@@ -8,12 +8,12 @@ import com.creeperface.nukkitx.colormatch.ColorMatch;
 
 public class YamlStatsProvider implements StatsProvider {
 
-    Config cfg = null;
+    private Config cfg = null;
 
     @Override
     public boolean init(ColorMatch plugin) {
         cfg = new Config(plugin.getDataFolder() + "/stats.yml", Config.YAML);
-        Server.getInstance().getScheduler().scheduleDelayedRepeatingTask(new SaveTask(this), 300 * 20, 300 * 20);
+        Server.getInstance().getScheduler().scheduleDelayedRepeatingTask(plugin, new SaveTask(this), 300 * 20, 300 * 20);
         return true;
     }
 

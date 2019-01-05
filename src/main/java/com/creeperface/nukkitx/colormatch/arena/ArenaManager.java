@@ -3,6 +3,8 @@ package com.creeperface.nukkitx.colormatch.arena;
 import cn.nukkit.Player;
 import cn.nukkit.block.BlockWallSign;
 import cn.nukkit.blockentity.BlockEntitySign;
+import cn.nukkit.math.AxisAlignedBB;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.potion.Effect;
 import cn.nukkit.utils.TextFormat;
@@ -64,7 +66,7 @@ public abstract class ArenaManager extends Configuration {
             case TYPE_BLIND:
                 return Effect.getEffect(Effect.BLINDNESS).setDuration(999999999).setVisible(false);
             case TYPE_FURIOUS:
-                return Effect.getEffect(Effect.SPEED).setAmplifier(4).setDuration(999999999).setVisible(false);
+                return Effect.getEffect(Effect.SPEED).setAmplifier(9).setDuration(999999999).setVisible(false);
             case TYPE_STONED:
                 return Effect.getEffect(Effect.CONFUSION).setDuration(999999999).setVisible(false);
         }
@@ -90,5 +92,25 @@ public abstract class ArenaManager extends Configuration {
         if (plugin.players.size() <= 1) {
             plugin.endGame();
         }
+    }
+
+    public int getFieldIndexFromPos(Vector3 pos) {
+        AxisAlignedBB floor = getFloor();
+
+        pos = pos.clone();
+        pos.y = floor.getMaxY();
+
+        if (!floor.isVectorInside(pos)) {
+            return -1;
+        }
+
+        int edgeCount = getRadius() * 2 + 1;
+
+        pos = pos.subtract(floor.getMinX(), 0, floor.getMinZ());
+
+        int indexX = pos.getFloorX() / edgeCount;
+        int indexZ = pos.getFloorZ() / edgeCount;
+
+        return (indexZ * edgeCount) + indexX;
     }
 }

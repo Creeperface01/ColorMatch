@@ -1,15 +1,15 @@
 ## English translation by CreeperFace
 general:
-  permission_message: "&cYou do not have permission to perform this action"
-  arena_running: "&cArena is running now"
+  permission_message: "&cYou do not have permission to perform to this action"
+  arena_running: "&cArena is already running"
   arena_not_running: "&eArena is not running!"
-  player_not_exist: "&cPlayer is not in arena"
+  player_not_exist: "&cPlayer is not in the arena"
   arena_doesnt_exist: "&cArena doesn't exist"
   arena_doesnt_exist2: "&cArena %0 doesn't exist"
   arena_already_exist: "&cArena already exists"
   arena_already_disabled: "&eArena is already disabled"
   arena_already_enabled: "&eArena is already enabled"
-  arena_in_setup_mode: "&cThis arena is currently in setup mode"
+  arena_in_setup_mode: "&cThis arena is currently in the setup mode"
   game_full: "&cArena is full"
   create_sign: "&aSign successfully created"
   load_all: "&aLoading arenas..."
@@ -17,6 +17,8 @@ general:
   load_arena: "&7%0 &a- load successful"
   disable_arena: "Disabling %0..."
   no_arenas: "&aNo arenas found"
+  available_arenas: "&7Available ColorMatch arenas:"
+  waiting_players: "&eWaiting for players &7(%0/%1)"
 
 game:
   join: "&7Joining to arena &e%0&7..."
@@ -27,9 +29,10 @@ game:
   start_game: "&bGame started!"
   death: "&e%0 &7has been eliminated! &b%1 &7players left"
   send_to_main_world: "&2returning to lobby..."
-  starting: "&agame starts in %0 seconds"
+  starting: "&aGame starts in %0 seconds"
   kick_from_game: "&9You have been kicked from game for %0"
   commands: "&cYou can not use commands here"
+  already: "&cYou are already in the game"
   #reward for win
   reward: "&aYou won %0 coins!"
   #end game message
@@ -46,12 +49,13 @@ commands:
     leave: "&7use &e/cm leave &a<arena name>"
     start: "&7use &e/cm start &a<arena name>"
     stop: "&7use &e/cm stop &a<arena name>"
-    set: "&7use &e/cm set &a<arena name>"
+    set: "&7use &e/cm configure &a<arena name>"
     create: "&7u0se &e/cm create &a<arena name>"
     setlobby_player: "&7use &e/cm setlobby"
     setlobby: "&7use &e/cm setlobby &a<x> <y> <z> [world]"
     build: "&7use &e/cm build &a<arena name> [block]"
     stats: "&7use &e/cm stats [player]"
+    list: "&7use &e/cm list [world name]"
 
   success:
     disable: "&aDisabling arena &e%0&a..."
@@ -62,21 +66,25 @@ commands:
     stats: "&d>> &7showing &eColorMatch &7stats for player &e%0"
     create: "&eArena successfully created!"
     build: "&aBuilding arena &e%0&a..."
+    setlobby: "&aLobby position successfully updated"
 
   failure:
-    enable: "&cAn error occured during enabiling"
+    enable: "&cArena is not properly configured or an error occurred during enabling"
     run_command_ingame: "&eYou can use this command in-game only"
     unknown_world: "&cWorld %0 doesn't exist"
     invalid_block: "&cBlock %0 doesn't exist"
-##########################
+    list_empty: "&cThere are no any loaded arenas"
+    build_enable: "&cYou must enable the arena first"
+#####################
 #setup mode messages#
-##########################
+#####################
 setupmode:
   help:
     game_type: "&7use: &etype &b[classic/furious/stoned/blind]"
-    floor_type: "&7use: &efloortype &b[wool/clay/carpet]"
+    floor_type: "&7use: &efloortype &b[wool/clay/carpet/glass]"
     colortime: "&7use: &ecolortime &b<seconds>"
     radius: "&7use: &efloorradius &b<radius>"
+    aggressive: "&7use &eaggressive &b<true/false>"
     help: "&7Showing help page &a%0/%1:"
     help_messages:
 
@@ -85,12 +93,12 @@ setupmode:
     number_error: "&cPlease enter valid number"
     floor_type_error: "&cPlease enter valid floor type"
     arena_type_error: "&cPlease enter valid arena type"
-    missing_arguments: "&eArena is not set properly! Some arguments are missing (&7 %0 &e) \n&eDo you want to save the arena? <yes/no>"
+    missing_arguments: "&eArena is not configured properly! Some arguments are missing (&7 %0 &e) \n&eDo you want to save the arena? <yes/no>"
     unknown_command: "&cUnknown command. Type 'help' for help"
 
   enable: "&eYou are now editing arena &9%0"
-  continue: "&eYou can continue in setting the arena"
-  continue_join: "&eYou are setting an arena %0"
+  continue: "&eYou can continue in configuring the arena"
+  continue_join: "&eYou are configuring an arena %0"
   save: "&aArena successfully saved. Type &e/cm enable %0 &a  to load the arena"
   joinsign: "&aSet join sign position to &eX: &9%0 &eY: &9%1 &eZ: &9%2"
   startpos: "&aSet start position to &eX: &9%0 &eY: &9%1 &eZ: &9%2"
@@ -101,32 +109,33 @@ setupmode:
   floor_type: "&aFloor material has been successfully updated"
   colortime: "&aColor change interval has been successfully updated"
   radius: "&aSet floor radius to &e%0"
+  aggressive: "&aAggressive mode has been updated"
 
 ##################################
 #colorMatch help command messages#
 ##################################
 help:
-  main: "&7Showing colorMatch help page %0/%1:"
+  main: "&7Showing ColorMatch help page %0/%1:"
   lobby: "\n- &2/cm lobby &l&5»&r&f Teleport to lobby"
   leave: "\n- &2/cm leave &l&5»&r&f Leave the arena"
   join: "\n- &2/cm join &b<arena name> &l&5»&r&f Join to the arena"
   start: "\n- &2/cm start &b[arena name] &l&5»&r&f Force start the arena"
   stop: "\n- &2/cm stop &b[arena name] &l&5»&r&f Force stop the arena"
   kick: "\n- &2/cm kick &b[arena name] [player name] [reason] &l&5»&r&f Kick player from arena"
-  set: "\n- &2/cm set &b<arena name> &l&5»&r&f Set or modify arena"
+  set: "\n- &2/cm configure &b<arena name> &l&5»&r&f Set or modify arena"
   delete: "\n- &2/cm delete &b[arena name] &l&5»&r&f Delete existing arena"
   create: "\n- &2/cm create &b<arena name> &l&5»&r&f Create new arena"
   build: "\n- &2/cm build &b<arena name> [block] &l&5»&r&f Build a simple arena"
 
 stats:
-  own: "&7Showing your colorMatch stats:"
-  another: "&7Showing &9%0's&7 colorMatch stats:"
+  own: "&7Showing your ColorMatch stats:"
+  another: "&7Showing &9%0's&7 ColorMatch stats:"
   wins: "&ewins: &7%0"
   deaths: "&edeaths: &7%0"
   rounds: "&erounds: &7%0"
 
 arena_builder:
-  success: "&arena was successfully generated &7(%0 blocks, %1 seconds)"
+  success: "&aArena was successfully generated &7(%0 blocks, %1 seconds)"
   failure: "&cCan not generate. Floor Y is too low"
 
 custom_words:

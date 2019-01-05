@@ -1,4 +1,4 @@
-package com.creeperface.nukkitx.colormatch.eventHandler;
+package com.creeperface.nukkitx.colormatch.eventhandler;
 
 import cn.nukkit.AdventureSettings;
 import cn.nukkit.Player;
@@ -131,25 +131,25 @@ public class MainListener implements Listener {
             String[] args = e.getMessage().split(" ");
 
             if (acceptQueue.contains(p.getName())) {
+                acceptQueue.remove(p.getName());
+
                 switch (args[0].toLowerCase().trim()) {
                     case "yes":
-                        acceptQueue.remove(p.getName());
-
                         arena.save(true);
                         p.sendMessage(plugin.getLanguage().translateString("setupmode.save"));
 
                         plugin.getSetters().remove(p.getName());
                         break;
+                    default:
                     case "no":
-                        acceptQueue.remove(p.getName());
                         p.sendMessage(plugin.getLanguage().translateString("setupmode.continue"));
                         break;
                 }
 
-                acceptQueue.remove(p.getName());
                 return;
             }
 
+            cmdSwitch:
             switch (args[0].toLowerCase().trim()) {
                 /*case "joinsign":
                     setters.put(p.getName(), JOIN_SIGN);
@@ -197,7 +197,7 @@ public class MainListener implements Listener {
 
                     String type = args[1].toLowerCase().trim();
 
-                    if (!(type.equals("wool") || type.equals("carpet") || type.equals("clay"))) {
+                    if (!(type.equals("wool") || type.equals("carpet") || type.equals("clay") || type.equals("glass"))) {
                         p.sendMessage(plugin.getLanguage().translateString("setupmode.failure.floor_type_error"));
                         break;
                     }
@@ -264,6 +264,35 @@ public class MainListener implements Listener {
                     arena.setType(arenaType);
                     p.sendMessage(plugin.getLanguage().translateString("setupmode.game_type"));
                     break;
+                case "aggressive":
+                    if (args.length != 2) {
+                        p.sendMessage(plugin.getLanguage().translateString("setupmode.help.aggressive"));
+                        break;
+                    }
+
+                    String stateStr = args[1].toLowerCase().trim();
+
+                    boolean state;
+
+                    switch (stateStr.toLowerCase()) {
+                        case "1":
+                        case "true":
+                        case "t":
+                            state = false;
+                            break;
+                        case "0":
+                        case "false":
+                        case "f":
+                            state = true;
+                            break;
+                        default:
+                            p.sendMessage(plugin.getLanguage().translateString("setupmode.help.aggressive"));
+                            break cmdSwitch;
+                    }
+
+                    arena.setAggressive(state);
+                    p.sendMessage(plugin.getLanguage().translateString("setupmode.aggressive"));
+                    break;
                 /*case "level":
                 case "world":
                 case "arenaworld":
@@ -323,10 +352,11 @@ public class MainListener implements Listener {
 
                     msg += plugin.getLanguage().translateString("setupmode.help.help", "1", "1");
                     msg += "\n" + TextFormat.YELLOW + "   floorradius <radius>";
-                    msg += "\n" + TextFormat.YELLOW + "   floortype <wool/carpet/clay>";
+                    msg += "\n" + TextFormat.YELLOW + "   floortype <wool/carpet/clay/glass>";
                     msg += "\n" + TextFormat.YELLOW + "   colorinterval <seconds>";
                     msg += "\n" + TextFormat.YELLOW + "   arenatype <normal/blind/stoned/furious>";
                     msg += "\n" + TextFormat.YELLOW + "   arenaworld <world>";
+                    msg += "\n" + TextFormat.YELLOW + "   aggressive <true/false>";
 
                     p.sendMessage(msg);
                     break;
@@ -339,9 +369,7 @@ public class MainListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
-        if (acceptQueue.contains(e.getPlayer().getName())) {
-            acceptQueue.remove(e.getPlayer().getName());
-        }
+        acceptQueue.remove(e.getPlayer().getName());
     }
 
     @EventHandler
@@ -359,7 +387,7 @@ public class MainListener implements Listener {
 
             String line1 = sign.getText()[0];
 
-            if (TextFormat.clean(line1.toLowerCase()).trim().equals("[cm]")) {
+            if (line1 != null && TextFormat.clean(line1.toLowerCase()).trim().equals("[cm]")) {
                 if (!p.hasPermission("colormatch.sign.break")) {
                     p.sendMessage(plugin.getLanguage().translateString("general.permission_message"));
                     e.setCancelled();

@@ -4,6 +4,7 @@ import cn.nukkit.Player;
 import cn.nukkit.Server;
 import com.creeperface.nukkitx.colormatch.ColorMatch;
 import com.creeperface.nukkitx.colormatch.stats.sql.AsyncQuery;
+import lombok.Cleanup;
 import ru.nukkit.dblib.DbLib;
 
 import java.sql.Connection;
@@ -14,22 +15,13 @@ import java.util.Map;
 
 public abstract class SQLStatsProvider implements StatsProvider {
 
-    public static final String hash = "colorMatch.sql";
-
     public static final String dbFileName = "stats.db";
     protected DbType databaseType;
 
     @Override
     public boolean init(ColorMatch plugin) {
-        Connection connection = testConnection();
-
-        if (connection == null) {
-            Server.getInstance().getLogger().error("Could not connect to sql database!");
-            return false;
-        }
-
-        try {
-            PreparedStatement s = connection.prepareStatement("CREATE TABLE IF NOT EXISTS colormatch_stats ( name VARCHAR(16) PRIMARY KEY, wins INT, losses INT, rounds INT)");
+        try (Connection connection = getConnection()) {
+            @Cleanup PreparedStatement s = connection.prepareStatement("CREATE TABLE IF NOT EXISTS colormatch_stats ( name VARCHAR(50) PRIMARY KEY, wins INT, losses INT, rounds INT)");
             s.executeUpdate();
         } catch (SQLException e) {
             Server.getInstance().getLogger().error("Could not create colormatch_stats table");
@@ -58,7 +50,7 @@ public abstract class SQLStatsProvider implements StatsProvider {
         Server.getInstance().getScheduler().scheduleAsyncTask(ColorMatch.getInstance(), query);
     }
 
-    private Connection testConnection() {
+    private Connection getConnection() {
         try {
             if (databaseType == DbType.MYSQL) {
                 Class.forName("com.mysql.jdbc.Driver");
@@ -66,10 +58,7 @@ public abstract class SQLStatsProvider implements StatsProvider {
             } else {
                 return DbLib.getSQLiteConnection(ColorMatch.getInstance(), dbFileName);
             }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            return null;
-        } catch (ClassNotFoundException ex) {
+        } catch (SQLException | ClassNotFoundException ex) {
             ex.printStackTrace();
             return null;
         }
@@ -77,16 +66,16 @@ public abstract class SQLStatsProvider implements StatsProvider {
 
     private class UpdateStatsTask extends AsyncQuery {
 
-        int deaths = 0;
-        int win = 0;
-        int rounds = 0;
+        private final int deaths;
+        private final int wins;
+        private final int rounds;
 
-        String name;
+        private final String name;
 
-        SQLStatsProvider plugin;
+        private final SQLStatsProvider plugin;
 
-        private UpdateStatsTask(SQLStatsProvider plugin, String name, int win, int deaths, int rounds) {
-            this.win = win;
+        private UpdateStatsTask(SQLStatsProvider plugin, String name, int wins, int deaths, int rounds) {
+            this.wins = wins;
             this.deaths = deaths;
             this.rounds = rounds;
             this.plugin = plugin;
@@ -96,14 +85,13 @@ public abstract class SQLStatsProvider implements StatsProvider {
 
         @Override
         public void onRun() {
-            Connection c = getMySQLConnection();
+            try (Connection c = getMySQLConnection()) {
+                @Cleanup PreparedStatement s = c.prepareStatement("UPDATE colormatch_stats SET wins = wins + ?, deaths = deaths + ?, rounds = rounds + ? WHERE name = ?");
+                s.setInt(1, wins);
+                s.setInt(2, deaths);
+                s.setInt(3, rounds);
+                s.setString(4, name);
 
-            if (c == null) {
-                return;
-            }
-
-            try {
-                PreparedStatement s = c.prepareStatement("UPDATE colormatch_stats SET wins = wins + " + win + ", deaths = deaths + " + deaths + ", rounds = rounds + " + rounds + " WHERE name = '" + name + "'");
                 s.executeUpdate();
             } catch (SQLException var41) {
                 var41.printStackTrace();
@@ -122,8 +110,13 @@ public abstract class SQLStatsProvider implements StatsProvider {
         @Override
         public void onQuery(Map<String, Object> data) {
             if (data == null) {
-                try {
-                    PreparedStatement e = getMySQLConnection().prepareStatement("INSERT INTO colormatch_stats (name, wins, deaths, rounds) VALUES ('" + name + "', '" + 0 + "', '" + 0 + "', '" + 0 + "')");
+                try (Connection con = getMySQLConnection()) {
+                    @Cleanup PreparedStatement e = con.prepareStatement("INSERT INTO colormatch_stats (name, wins, deaths, rounds) VALUES (?, ?, ?, ?)");
+                    e.setString(1, name);
+                    e.setInt(2, 0);
+                    e.setInt(3, 0);
+                    e.setInt(4, 0);
+
                     e.executeUpdate();
                 } catch (SQLException e) {
                     e.printStackTrace();

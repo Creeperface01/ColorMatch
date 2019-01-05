@@ -2,14 +2,12 @@ package com.creeperface.nukkitx.colormatch.arena;
 
 import cn.nukkit.Player;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 class ArenaSchedule implements Runnable {
 
-    private Arena plugin;
-
-    public ArenaSchedule(Arena plugin) {
-        this.plugin = plugin;
-    }
+    private final Arena plugin;
 
     public int time = 0;
     public int colorTime = 0;
@@ -19,6 +17,8 @@ class ArenaSchedule implements Runnable {
     public int id = 0;
 
     public boolean floor = true;
+
+    public int floorResetedTick;
 
     public void run() {
         if (plugin.getPhase() == Arena.PHASE_GAME) {
@@ -49,16 +49,26 @@ class ArenaSchedule implements Runnable {
             return;
         }
 
-        if (colorTime > 0 && (colorTime % plugin.getColorChangeInterval()) == 0) {
+        int interval = plugin.getColorChangeInterval();
+
+        if (colorTime > 0 && (colorTime % interval) == 0) {
             if (floor) {
                 plugin.removeFloor();
                 floor = false;
+                this.plugin.bossBar.setHealth(interval * 10);
+                this.plugin.bossBar.updateInfo();
             } else {
                 floor = true;
                 plugin.selectNewColor();
                 plugin.resetFloor();
+                floorResetedTick = plugin.plugin.getServer().getTick();
             }
         }
+
+//        if(floor) {
+//            update = true;
+//            this.plugin.bossBar.setHealth((interval - 1) - (colorTime % (interval - 1)));
+//        }
 
         time++;
         colorTime++;

@@ -4,6 +4,7 @@ import cn.nukkit.scheduler.AsyncTask;
 import com.creeperface.nukkitx.colormatch.ColorMatch;
 import com.creeperface.nukkitx.colormatch.stats.SQLStatsProvider;
 import com.creeperface.nukkitx.colormatch.stats.SQLStatsProvider.DbType;
+import lombok.Cleanup;
 import ru.nukkit.dblib.DbLib;
 
 import java.sql.*;
@@ -26,14 +27,16 @@ public class AsyncQuery extends AsyncTask {
 
     private Map<String, Object> getData(String player) {
         try {
-            Connection c = getMySQLConnection();
+            @Cleanup Connection c = getMySQLConnection();
 
             if (c == null) {
                 return null;
             }
 
-            PreparedStatement s = c.prepareStatement("SELECT * FROM colormatch_stats WHERE name = '" + player.toLowerCase().trim() + "'");
-            ResultSet result = s.executeQuery();
+            @Cleanup PreparedStatement s = c.prepareStatement("SELECT * FROM colormatch_stats WHERE name = ?");
+            s.setString(1, player.toLowerCase().trim());
+
+            @Cleanup ResultSet result = s.executeQuery();
             ResultSetMetaData md = result.getMetaData();
             int columns = md.getColumnCount();
             HashMap row = new HashMap();
@@ -58,17 +61,8 @@ public class AsyncQuery extends AsyncTask {
     protected Connection getMySQLConnection() {
         Connection c;
 
-
         if (databaseType == DbType.MYSQL) {
-            c = (Connection) getFromThreadStore(SQLStatsProvider.hash);
-
-            if (c == null) {
-                c = connect();
-
-                if (c != null) {
-                    saveToThreadStore(SQLStatsProvider.hash, c);
-                }
-            }
+            c = connect();
         } else {
             c = DbLib.getSQLiteConnection(ColorMatch.getInstance(), SQLStatsProvider.dbFileName);
         }

@@ -1,0 +1,145 @@
+## Czech translation by CreeperFace
+general:
+  permission_message: "&cNemas dostatecna opravneni k teto akci"
+  arena_running: "&cArena jiz probiha"
+  arena_not_running: "&eArena nebezi!"
+  player_not_exist: "&cHrac neni v arene"
+  arena_doesnt_exist: "&cArena neexistuje"
+  arena_doesnt_exist2: "&cArena %0 neexistuje"
+  arena_already_exist: "&cArena jiz existuje"
+  arena_already_disabled: "&eArena je jiz deaktivovana"
+  arena_already_enabled: "&eArena je jiz aktivovana"
+  arena_in_setup_mode: "&cTato arena se momentalne nastavuje"
+  game_full: "&cArena je plna"
+  create_sign: "&aCedule byla vytvorena"
+  load_all: "&aNacitam areny..."
+  disable_all: "Vypinam vsechny areny..."
+  load_arena: "&7%0 &a- byla uspesne nactena"
+  disable_arena: "Vypinam %0..."
+  no_arenas: "&aNebyly nalezeny zadne areny"
+  available_arenas: "&7Dostupne ColorMatch areny:"
+  waiting_players: "&eCekani na hrace &7(%0/%1)"
+
+game:
+  join: "&7Pripojujovani do areny &e%0&7..."
+  join_spectator: "&7Pripojovani jako divak..."
+  join_others: "&e%0&7 se pripojil (&9%1&e / &9%2&7)"
+  leave: "&7Opoustis arenu..."
+  leave_others: "&e%0&7 se odpojil (&9%1&e / &9%2&7)"
+  start_game: "&bHra zacala!"
+  death: "&e%0 &7byl vyrazen! &7Zbyva &b%1 &7hracu"
+  send_to_main_world: "&2Probiha navrat do lobby..."
+  starting: "&aHra zacina za %0 sekund"
+  kick_from_game: "&9Byl jsi vykopnut ze hry kvuli %0"
+  commands: "&cZde nemuzes pouzivat ostatni prikazy"
+  already: "&cJiz jsi v arene"
+  #reward for win
+  reward: "&aVyhral jsi %0 penez!"
+  #end game message
+  end_game: "§6§l---------------------§r\n§5arena %0 skoncila\n§4vitezove:\n§a1. %1\n§e2. %2\n§c3. %3\n§6§l---------------------"
+###################
+#Commands messages#
+###################
+commands:
+  help:
+    help: "&7pouzij &e/cm help"
+    join: "&e7pouzij &e/cm join &a<jmeno areny>"
+    enable: "&e7pouzij &e/cm enable &a<jmeno areny>"
+    disable: "&e7pouzij &e/cm disable &a<jmeno areny>"
+    leave: "&7pouzij &e/cm leave &a<jmeno areny>"
+    start: "&7pouzij &e/cm start &a<jmeno areny>"
+    stop: "&7pouzij &e/cm stop &a<jmeno areny>"
+    set: "&7pouzij &e/cm configure &a<jmeno areny>"
+    create: "&7u0se &e/cm create &a<jmeno areny>"
+    setlobby_player: "&7pouzij &e/cm setlobby"
+    setlobby: "&7pouzij &e/cm setlobby &a<x> <y> <z> [jmeno sveta]"
+    build: "&7pouzij &e/cm build &a<jmeno areny> [blok]"
+    stats: "&7pouzij &e/cm stats [hrac]"
+    list: "&7pouzij &e/cm list [jmeno sveta]"
+
+  success:
+    disable: "&aDeaktivuji arenu &e%0&a..."
+    enable: "&aAktivuji arenu &e%0&a..."
+    start: "&aArena byla odstartovana"
+    stop: "&aArena byla vypnuta"
+    set: "&eNyni nastavujes arenu &9%0"
+    stats: "&d>> &7Zobrazuji &eColorMatch &7statistiky hrace &e%0"
+    create: "&eArena uspesne vytvorena!"
+    build: "&aStavim arenu &e%0&a..."
+    setlobby: "&aLobby pozice byla nastavena"
+
+  failure:
+    enable: "&cArena is not properly configured or an error occurred during enabling"
+    run_command_ingame: "&eTento prikaz muzes pouzit jen ve hre"
+    unknown_world: "&cSvet %0 neexistuje"
+    invalid_block: "&cBlok %0 neexistuje"
+    list_empty: "&cNejsou zde zadne nactene areny"
+    build_enable: "&cNejdrive musis arenu aktivovat"
+#####################
+#setup mode messages#
+#####################
+setupmode:
+  help:
+    game_type: "&7pouzij: &etype &b[classic/furious/stoned/blind]"
+    floor_type: "&7pouzij: &efloortype &b[wool/clay/carpet/glass]"
+    colortime: "&7pouzij: &ecolortime &b<sekundy>"
+    radius: "&7pouzij: &efloorradius &b<radius>"
+    aggressive: "&7pouzij &eaggressive &b<true/false>"
+    help: "&7Zobrazuji stranu napovedy &a%0/%1:"
+    help_messages:
+
+
+  failure:
+    number_error: "&cZadej prosim platne cislo"
+    floor_type_error: "&cProsim zadej platny typ podlahy"
+    arena_type_error: "&cProsim zadej platny typ areny"
+    missing_arguments: "&eArena neni dostatecne nastavena! Nejake polozky schazeji (&7 %0 &e) \n&eOpravdy chces arenu ulozit? <yes/no>"
+    unknown_command: "&cNeznamy prikaz. Pouzij 'help' pro zobrazeni napovedy"
+
+  enable: "&eNyni nastavujes arenu &9%0"
+  continue: "&eMuzes pokracovat v nastavovani areny"
+  continue_join: "&eNastavujes arenu %0"
+  save: "&aArena byla ulozena. Pouzij &e/cm enable %0 &a pro aktivaci areny"
+  joinsign: "&aPozice cedule byla nastavena na &eX: &9%0 &eY: &9%1 &eZ: &9%2"
+  startpos: "&aStartovaci pozice byla nastavena na &eX: &9%0 &eY: &9%1 &eZ: &9%2"
+  floorpos: "&aPozice podlahy byla nastavena na &eX: &9%0 &eY: &9%1 &eZ: &9%2"
+  spectatorspawn: "&aPozice divaku byla nastavena na &eX: &9%0 &eY: &9%1 &eZ: &9%2"
+  mainlobby: "&aPozice hlavniho lobby byla zmenena"
+  game_type: "&aTyp areny byl zmenen"
+  floor_type: "&aMaterial podlahy byl zmenen"
+  colortime: "&aInterval zmeny barvy byl zmenen"
+  radius: "&aRadius podlahy byl nastaven na &e%0"
+  aggressive: "&aAgresivni mod byl zmenen"
+
+##################################
+#colorMatch help command messages#
+##################################
+help:
+  main: "&7Zobrazuji ColorMatch napovedu, strana %0/%1:"
+  lobby: "\n- &2/cm lobby &l&5»&r&f Teleport na lobby"
+  leave: "\n- &2/cm leave &l&5»&r&f Odpojeni z areny"
+  join: "\n- &2/cm join &b<jmeno areny> &l&5»&r&f Pripojeni do areny"
+  start: "\n- &2/cm start &b[jmeno areny] &l&5»&r&f Okamzity start areny"
+  stop: "\n- &2/cm stop &b[jmeno areny] &l&5»&r&f Okamzite ukonceni hry"
+  kick: "\n- &2/cm kick &b[jmeno areny] [hrac] [duvod] &l&5»&r&f Vykopnuti hrace z areny"
+  set: "\n- &2/cm configure &b<jmeno areny> &l&5»&r&f Nastaveni nebo zmena parametru areny"
+  delete: "\n- &2/cm delete &b[jmeno areny] &l&5»&r&f Smazani existujici areny"
+  create: "\n- &2/cm create &b<jmeno areny> &l&5»&r&f Vytvoreni nove areny"
+  build: "\n- &2/cm build &b<jmeno areny> [blok] &l&5»&r&f Postavi zakladni arenu"
+
+stats:
+  own: "&7Zobrazuji tve ColorMatch statistiky:"
+  another: "&7Zobrazuji ColorMatch statistiky hrace &9%0's&7:"
+  wins: "&evyhry: &7%0"
+  deaths: "&esmrti: &7%0"
+  rounds: "&epocet odehranych kol: &7%0"
+
+arena_builder:
+  success: "&aArena byla uspesne vygenerovana &7(%0 bloku, %1 sekund)"
+  failure: "&cArenu nelze vygenerovat. Pozice podlahy je prilis nizko"
+
+custom_words:
+  arena: "arena"
+  use: "pouzij"
+  world: "svet"
+  player: "hrac"

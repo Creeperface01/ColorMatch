@@ -1,4 +1,4 @@
-package com.creeperface.nukkitx.colormatch.eventHandler;
+package com.creeperface.nukkitx.colormatch.eventhandler;
 
 import cn.nukkit.event.Listener;
 
