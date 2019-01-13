@@ -78,10 +78,7 @@ public class AsyncQuery extends AsyncTask {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             return DriverManager.getConnection(DbLib.getUrlFromConfig(null));
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            return null;
-        } catch (ClassNotFoundException ex) {
+        } catch (SQLException | ClassNotFoundException ex) {
             ex.printStackTrace();
             return null;
         }

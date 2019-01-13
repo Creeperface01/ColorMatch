@@ -460,6 +460,19 @@ public class ColorMatch extends PluginBase {
 
                     sender.sendMessage(builder.toString());
                     break;
+                case "stats":
+                    if (!sender.isPlayer() && args.length < 2) {
+                        sender.sendMessage(language.translateString("commands.failure.run_command_ingame"));
+                        return true;
+                    }
+
+                    if (args.length > 2) {
+                        sender.sendMessage(language.translateString("commands.help.stats"));
+                        return true;
+                    }
+
+                    getStats().sendStats(args.length == 2 ? args[1].toLowerCase() : sender.getName().toLowerCase(), sender);
+                    break;
                 default:
                     sender.sendMessage(getHelp(sender, 1));
                     break;

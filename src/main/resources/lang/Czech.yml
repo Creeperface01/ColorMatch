@@ -75,6 +75,8 @@ commands:
     invalid_block: "&cBlok %0 neexistuje"
     list_empty: "&cNejsou zde zadne nactene areny"
     build_enable: "&cNejdrive musis arenu aktivovat"
+    stats_player: "&cNejsou zadne ulozene statistiky hrace '%0'"
+    stats_disabled: "&cStatistiky jsou vypnuty"
 #####################
 #setup mode messages#
 #####################

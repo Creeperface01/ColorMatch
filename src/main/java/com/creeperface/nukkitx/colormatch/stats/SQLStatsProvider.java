@@ -1,7 +1,7 @@
 package com.creeperface.nukkitx.colormatch.stats;
 
-import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.command.CommandSender;
 import com.creeperface.nukkitx.colormatch.ColorMatch;
 import com.creeperface.nukkitx.colormatch.stats.sql.AsyncQuery;
 import lombok.Cleanup;
@@ -45,8 +45,8 @@ public abstract class SQLStatsProvider implements StatsProvider {
     }
 
     @Override
-    public void sendStats(Player p) {
-        GetStatsQuery query = new GetStatsQuery(p.getName());
+    public void sendStats(String p, CommandSender receiver) {
+        GetStatsQuery query = new GetStatsQuery(p, receiver);
         Server.getInstance().getScheduler().scheduleAsyncTask(ColorMatch.getInstance(), query);
     }
 
@@ -127,8 +127,11 @@ public abstract class SQLStatsProvider implements StatsProvider {
 
     private class GetStatsQuery extends AsyncQuery {
 
-        GetStatsQuery(String name) {
+        private CommandSender receiver;
+
+        GetStatsQuery(String name, CommandSender receiver) {
             player = name;
+            this.receiver = receiver;
         }
 
         Map<String, Object> data = null;
@@ -141,23 +144,18 @@ public abstract class SQLStatsProvider implements StatsProvider {
         @Override
         public void onCompletion(Server server) {
             if (data == null) {
-                return;
-            }
-
-            Player p = server.getPlayerExact(player);
-
-            if (p == null || !p.isOnline()) {
+                receiver.sendMessage(ColorMatch.getInstance().getLanguage().translateString("commands.failure.stats_player", player));
                 return;
             }
 
             ColorMatch plugin = ColorMatch.getInstance();
 
-            String msg = plugin.getLanguage().translateString("commands.success.stats", p.getName());
+            String msg = plugin.getLanguage().translateString("commands.success.stats", player);
             msg += "\n" + plugin.getLanguage().translateString("stats.wins", String.valueOf(data.get("wins")));
             msg += "\n" + plugin.getLanguage().translateString("stats.deaths", String.valueOf(data.get("deaths")));
             msg += "\n" + plugin.getLanguage().translateString("stats.rounds", String.valueOf(data.get("rounds")));
 
-            p.sendMessage(msg);
+            receiver.sendMessage(msg);
         }
     }
 

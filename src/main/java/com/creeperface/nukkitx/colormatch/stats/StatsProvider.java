@@ -1,6 +1,6 @@
 package com.creeperface.nukkitx.colormatch.stats;
 
-import cn.nukkit.Player;
+import cn.nukkit.command.CommandSender;
 import com.creeperface.nukkitx.colormatch.ColorMatch;
 
 public interface StatsProvider {
@@ -11,7 +11,7 @@ public interface StatsProvider {
 
     boolean createNewUser(String name);
 
-    void sendStats(Player p);
+    void sendStats(String p, CommandSender receiver);
 
     void onDisable();
 }

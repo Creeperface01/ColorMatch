@@ -1,12 +1,15 @@
 package com.creeperface.nukkitx.colormatch.stats;
 
-import cn.nukkit.Player;
+import cn.nukkit.command.CommandSender;
 import com.creeperface.nukkitx.colormatch.ColorMatch;
 
 public class NoneProvider implements StatsProvider {
 
+    private ColorMatch plugin;
+
     @Override
     public boolean init(ColorMatch plugin) {
+        this.plugin = plugin;
         return true;
     }
 
@@ -21,8 +24,8 @@ public class NoneProvider implements StatsProvider {
     }
 
     @Override
-    public void sendStats(Player p) {
-
+    public void sendStats(String p, CommandSender receiver) {
+        receiver.sendMessage(plugin.getLanguage().translateString("commands.failure.stats_disabled"));
     }
 
     @Override

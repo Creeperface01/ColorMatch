@@ -1,7 +1,7 @@
 package com.creeperface.nukkitx.colormatch.stats;
 
-import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.command.CommandSender;
 import cn.nukkit.utils.Config;
 import cn.nukkit.utils.ConfigSection;
 import com.creeperface.nukkitx.colormatch.ColorMatch;
@@ -46,21 +46,22 @@ public class YamlStatsProvider implements StatsProvider {
     }
 
     @Override
-    public void sendStats(Player p) {
-        ConfigSection data = cfg.getSection(p.getName().toLowerCase());
-
-        if (data == null) {
-            return;
-        }
+    public void sendStats(String p, CommandSender receiver) {
+        ConfigSection data = cfg.getSection(p.toLowerCase());
 
         ColorMatch plugin = ColorMatch.getInstance();
 
-        String msg = plugin.getLanguage().translateString("commands.success.stats", p.getName());
+        if (data.isEmpty()) {
+            receiver.sendMessage(plugin.getLanguage().translateString("commands.failure.stats_player", p));
+            return;
+        }
+
+        String msg = plugin.getLanguage().translateString("commands.success.stats", p);
         msg += "\n" + plugin.getLanguage().translateString("stats.wins", data.getString("wins"));
         msg += "\n" + plugin.getLanguage().translateString("stats.deaths", data.getString("deaths"));
         msg += "\n" + plugin.getLanguage().translateString("stats.rounds", data.getString("rounds"));
 
-        p.sendMessage(msg);
+        receiver.sendMessage(msg);
     }
 
     private class SaveTask implements Runnable {

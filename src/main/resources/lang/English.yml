@@ -75,6 +75,8 @@ commands:
     invalid_block: "&cBlock %0 doesn't exist"
     list_empty: "&cThere are no any loaded arenas"
     build_enable: "&cYou must enable the arena first"
+    stats_player: "&cThere aren't any saved stats of player '%0'"
+    stats_disabled: "&cStats are disabled"
 #####################
 #setup mode messages#
 #####################
