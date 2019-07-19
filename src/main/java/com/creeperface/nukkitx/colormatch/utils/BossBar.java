@@ -1,7 +1,6 @@
 package com.creeperface.nukkitx.colormatch.utils;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
 import cn.nukkit.entity.Attribute;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.data.EntityMetadata;
@@ -28,28 +27,15 @@ public class BossBar {
     public final long id;
     private int health = 1;
     private int maxHealth = 600;
+    private String text = "";
 
     private EntityMetadata metadata;
-    private BossEventPacket permanentPacket = new BossEventPacket();
-    private UpdateAttributesPacket attributesPacket = new UpdateAttributesPacket();
     private NukkitRandom random = new NukkitRandom();
 
     public BossBar(Plugin plugin) {
         this.plugin = plugin;
         this.id = 2197383491L;
         this.metadata = (new EntityMetadata()).putString(Entity.DATA_NAMETAG, "").putLong(0, 196640L).putLong(38, -1L).putFloat(54, 0.0F).putFloat(55, 0.0F).putFloat(39, 0.0F);
-        this.permanentPacket.bossEid = this.id;
-        this.permanentPacket.type = 0;
-
-        BossEventPacket permanentPacketUpdate = new BossEventPacket();
-        permanentPacketUpdate.type = 1;
-        permanentPacketUpdate.color = 0x4286f4;
-        permanentPacketUpdate.overlay = 0x4286f4;
-
-        this.attributesPacket.entityId = this.id;
-        this.attributesPacket.entries = new Attribute[]{Attribute.getAttribute(4).setMaxValue((float) this.maxHealth).setValue((float) this.getHealth())};
-        this.attributesPacket.encode();
-        this.attributesPacket.isEncoded = true;
 
         plugin.getServer().getScheduler().scheduleDelayedRepeatingTask(plugin, BossBar.this::update, 10, 10);
     }
@@ -57,8 +43,8 @@ public class BossBar {
     public void addPlayer(Player p) {
         this.players.put(p.getName().toLowerCase(), p);
         Location pos = p.add(this.getDirectionVector(p).normalize().multiply(-15));
-        AddEntityPacket pk = new AddEntityPacket();
 
+        AddEntityPacket pk = new AddEntityPacket();
         pk.type = WITHER_ID;
         pk.entityRuntimeId = this.id;
         pk.entityUniqueId = this.id;
@@ -71,14 +57,21 @@ public class BossBar {
         pk.yaw = 0;
         pk.pitch = 0;
         pk.metadata = this.metadata;
+        pk.attributes = new Attribute[]{Attribute.getAttribute(4).setMaxValue((float) this.maxHealth).setValue((float) this.getHealth())};
 
         UpdateAttributesPacket pk1 = new UpdateAttributesPacket();
         pk1.entityId = this.id;
         pk1.entries = new Attribute[]{Attribute.getAttribute(Attribute.MAX_HEALTH).setMaxValue((float) this.maxHealth).setValue((float) this.getHealth())};
         p.dataPacket(pk);
         p.dataPacket(pk1);
-        p.dataPacket(this.attributesPacket);
-        p.dataPacket(this.permanentPacket);
+
+        BossEventPacket pk2 = new BossEventPacket();
+        pk2.type = BossEventPacket.TYPE_SHOW;
+        pk2.healthPercent = (float) health / maxHealth;
+        pk2.title = this.text;
+        pk2.bossEid = id;
+
+        p.dataPacket(pk2);
     }
 
     public void removePlayer(Player p) {
@@ -87,9 +80,10 @@ public class BossBar {
             RemoveEntityPacket pk = new RemoveEntityPacket();
             pk.eid = this.id;
             p.dataPacket(pk);
+
             BossEventPacket pk2 = new BossEventPacket();
             pk2.bossEid = this.id;
-            pk2.type = 2;
+            pk2.type = BossEventPacket.TYPE_HIDE;
             p.dataPacket(pk2);
         }
 
@@ -109,6 +103,7 @@ public class BossBar {
 
     public void update(Player p, boolean respawn) {
         Location pos = p.add(this.getDirectionVector(p).normalize().multiply(-15));
+
         MoveEntityAbsolutePacket pk2 = new MoveEntityAbsolutePacket();
         pk2.eid = this.id;
         pk2.x = (double) ((float) pos.x);
@@ -117,9 +112,8 @@ public class BossBar {
         pk2.yaw = (double) ((float) p.yaw);
         pk2.headYaw = (double) ((float) p.yaw);
         pk2.pitch = (double) ((float) p.pitch);
+
         p.dataPacket(pk2);
-        p.dataPacket(this.permanentPacket);
-        p.dataPacket(this.attributesPacket);
     }
 
     public void setHealth(int health) {
@@ -131,27 +125,17 @@ public class BossBar {
     }
 
     public void updateText(String text) {
-        this.metadata.putString(Entity.DATA_NAMETAG, text);
+        this.text = text;
     }
 
-    public void updateInfo() {
-        SetEntityDataPacket pk = new SetEntityDataPacket();
-        pk.eid = this.id;
-        pk.metadata = this.metadata;
+    public void updateData() {
+        BossEventPacket pk = new BossEventPacket();
+        pk.type = BossEventPacket.TYPE_UPDATE;
+        pk.healthPercent = (float) health / maxHealth;
+        pk.title = this.text;
+        pk.bossEid = id;
 
-        this.attributesPacket.entries[0].setMaxValue((float) this.maxHealth).setValue((float) this.getHealth());
-        this.attributesPacket.encode();
-        this.attributesPacket.isEncoded = true;
-
-        plugin.getServer().batchPackets(players.values().toArray(new Player[0]), new DataPacket[]{this.attributesPacket, pk});
-    }
-
-    public void updateHealth() {
-        this.attributesPacket.entries[0].setMaxValue((float) this.maxHealth).setValue((float) this.getHealth());
-        this.attributesPacket.encode();
-        this.attributesPacket.isEncoded = true;
-
-        Server.broadcastPacket(this.players.values(), this.attributesPacket);
+        plugin.getServer().batchPackets(players.values().toArray(new Player[0]), new DataPacket[]{pk});
     }
 
     public Vector3 getDirectionVector(Player p) {

@@ -8,7 +8,6 @@ import lombok.Cleanup;
 import ru.nukkit.dblib.DbLib;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Map;
@@ -51,17 +50,7 @@ public abstract class SQLStatsProvider implements StatsProvider {
     }
 
     private Connection getConnection() {
-        try {
-            if (databaseType == DbType.MYSQL) {
-                Class.forName("com.mysql.jdbc.Driver");
-                return DriverManager.getConnection(DbLib.getUrlFromConfig(null));
-            } else {
-                return DbLib.getSQLiteConnection(ColorMatch.getInstance(), dbFileName);
-            }
-        } catch (SQLException | ClassNotFoundException ex) {
-            ex.printStackTrace();
-            return null;
-        }
+        return DbLib.getDefaultConnection();
     }
 
     private class UpdateStatsTask extends AsyncQuery {

@@ -56,7 +56,7 @@ class ArenaSchedule implements Runnable {
                 plugin.removeFloor();
                 floor = false;
                 this.plugin.bossBar.setHealth(interval * 10);
-                this.plugin.bossBar.updateInfo();
+                this.plugin.bossBar.updateData();
             } else {
                 floor = true;
                 plugin.selectNewColor();

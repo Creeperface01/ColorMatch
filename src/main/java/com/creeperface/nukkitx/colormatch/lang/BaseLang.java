@@ -1,6 +1,7 @@
 package com.creeperface.nukkitx.colormatch.lang;
 
 import cn.nukkit.utils.Config;
+import cn.nukkit.utils.TextFormat;
 import com.creeperface.nukkitx.colormatch.ColorMatch;
 
 import java.util.Map;
@@ -26,7 +27,7 @@ public class BaseLang extends Config {
     }
 
     public String translateString(String str, boolean addPrefix, String... params) {
-        String baseText = this.getString(str).replaceAll("&", "§");
+        String baseText = this.getString(str).replace('&', TextFormat.ESCAPE);
 
         for (int i = 0; i < params.length; ++i) {
             baseText = baseText.replace("%" + i, params[i]);

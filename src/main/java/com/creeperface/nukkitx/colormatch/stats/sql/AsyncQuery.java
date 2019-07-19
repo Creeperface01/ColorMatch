@@ -1,8 +1,6 @@
 package com.creeperface.nukkitx.colormatch.stats.sql;
 
 import cn.nukkit.scheduler.AsyncTask;
-import com.creeperface.nukkitx.colormatch.ColorMatch;
-import com.creeperface.nukkitx.colormatch.stats.SQLStatsProvider;
 import com.creeperface.nukkitx.colormatch.stats.SQLStatsProvider.DbType;
 import lombok.Cleanup;
 import ru.nukkit.dblib.DbLib;
@@ -39,7 +37,7 @@ public class AsyncQuery extends AsyncTask {
             @Cleanup ResultSet result = s.executeQuery();
             ResultSetMetaData md = result.getMetaData();
             int columns = md.getColumnCount();
-            HashMap row = new HashMap();
+            HashMap<String, Object> row = new HashMap<>();
 
             while (result.next()) {
                 for (int i = 1; i <= columns; ++i) {
@@ -59,28 +57,29 @@ public class AsyncQuery extends AsyncTask {
     }
 
     protected Connection getMySQLConnection() {
-        Connection c;
+        return DbLib.getDefaultConnection();
+//        Connection c;
 
-        if (databaseType == DbType.MYSQL) {
-            c = connect();
-        } else {
-            c = DbLib.getSQLiteConnection(ColorMatch.getInstance(), SQLStatsProvider.dbFileName);
-        }
+//        if (databaseType == DbType.MYSQL) {
+//            c = connect();
+//        } else {
+//            c = DbLib.getSQLiteConnection(ColorMatch.getInstance(), SQLStatsProvider.dbFileName);
+//        }
 
-        return c;
+//        return c;
     }
 
-    protected Connection getSQLite3Connection() {
-        return DbLib.getSQLiteConnection(ColorMatch.getInstance(), "stats.db");
-    }
+//    protected Connection getSQLite3Connection() {
+//        return DbLib.getSQLiteConnection(ColorMatch.getInstance(), "stats.db");
+//    }
 
-    private Connection connect() {
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            return DriverManager.getConnection(DbLib.getUrlFromConfig(null));
-        } catch (SQLException | ClassNotFoundException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-    }
+//    private Connection connect() {
+//        try {
+//            Class.forName("com.mysql.jdbc.Driver");
+//            return DriverManager.getConnection(DbLib.getUrlFromConfig(null));
+//        } catch (SQLException | ClassNotFoundException ex) {
+//            ex.printStackTrace();
+//            return null;
+//        }
+//    }
 }

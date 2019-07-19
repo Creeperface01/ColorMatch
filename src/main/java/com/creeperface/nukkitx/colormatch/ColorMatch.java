@@ -16,7 +16,6 @@ import cn.nukkit.utils.TextFormat;
 import com.creeperface.nukkitx.colormatch.arena.Arena;
 import com.creeperface.nukkitx.colormatch.economy.EconomyAPIProvider;
 import com.creeperface.nukkitx.colormatch.economy.EconomyProvider;
-import com.creeperface.nukkitx.colormatch.economy.LeetEconomyProvider;
 import com.creeperface.nukkitx.colormatch.eventhandler.MainListener;
 import com.creeperface.nukkitx.colormatch.lang.BaseLang;
 import com.creeperface.nukkitx.colormatch.stats.*;
@@ -590,9 +589,10 @@ public class ColorMatch extends PluginBase {
 
         if (plugin != null) {
             economy = new EconomyAPIProvider(plugin);
-        } else if ((plugin = getServer().getPluginManager().getPlugin("economy-LEET")) != null) {
-            economy = new LeetEconomyProvider(plugin);
         }
+//        else if ((plugin = getServer().getPluginManager().getPlugin("economy-LEET")) != null) {
+//            economy = new LeetEconomyProvider(plugin);
+//        }
     }
 
     private void initStats() {

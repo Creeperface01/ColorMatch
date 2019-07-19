@@ -159,7 +159,7 @@ public class Arena extends ArenaManager implements Listener {
         updateJoinSign();
         selectNewColor();
 
-        this.bossBar.updateInfo();
+        this.bossBar.updateData();
     }
 
     public void stop() {
@@ -268,7 +268,7 @@ public class Arena extends ArenaManager implements Listener {
         saves.put(p.getName().toLowerCase(), save);
 
         this.bossBar.updateText(plugin.getLanguage().translateString("general.waiting_players", false, this.players.size() + "", plugin.conf.getMaxPlayers() + ""));
-        this.bossBar.updateInfo();
+        this.bossBar.updateData();
 
         this.bossBar.addPlayer(p);
 
@@ -324,7 +324,7 @@ public class Arena extends ArenaManager implements Listener {
         this.bossBar.removePlayer(p);
 
         this.bossBar.updateText(plugin.getLanguage().translateString("general.waiting_players", false, this.players.size() + "", plugin.conf.getMaxPlayers() + ""));
-        this.bossBar.updateInfo();
+        this.bossBar.updateData();
 
         SavedPlayer save = saves.remove(p.getName().toLowerCase());
 
@@ -347,7 +347,7 @@ public class Arena extends ArenaManager implements Listener {
         p.sendMessage(plugin.getLanguage().translateString("game.join_spectator"));
         p.setGamemode(0);
         bossBar.addPlayer(p);
-        bossBar.updateInfo();
+        bossBar.updateData();
         //p.setDisplayName(TextFormat.GRAY + "[" + TextFormat.YELLOW + "SPECTATOR" + TextFormat.GRAY + "] " + TextFormat.WHITE + TextFormat.RESET + " " + p.getDisplayName());
         this.spectators.put(p.getName().toLowerCase(), p);
     }
@@ -393,7 +393,7 @@ public class Arena extends ArenaManager implements Listener {
 
         this.bossBar.setHealth(colorChangeInterval * 10);
         this.bossBar.updateText(chatColor + DyeColor.getByWoolData(currentColor).getName());
-        this.bossBar.updateInfo();
+        this.bossBar.updateData();
     }
 
     public void resetFloor() {

@@ -22,7 +22,7 @@ public class FastTask implements Runnable {
                 int begin = scheduler.floorResetedTick;
 
                 this.plugin.bossBar.setHealth(interval - ((tick - begin) / 2));
-                this.plugin.bossBar.updateHealth();
+                this.plugin.bossBar.updateData();
 
                 MainLogger.getLogger().info("progress: " + (interval - (((tick - begin) / 2) * interval)) + "/" + (interval * 10));
             }
