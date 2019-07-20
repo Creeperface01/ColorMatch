@@ -10,7 +10,9 @@ import cn.nukkit.math.Vector3;
 import cn.nukkit.network.protocol.*;
 import cn.nukkit.plugin.Plugin;
 import lombok.Getter;
+import lombok.Setter;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,8 +27,9 @@ public class BossBar {
     @Getter
     private Map<String, Player> players = new HashMap<>();
     public final long id;
-    private int health = 1;
-    private int maxHealth = 600;
+    @Getter
+    @Setter
+    private float percent;
     private String text = "";
 
     private EntityMetadata metadata;
@@ -57,18 +60,15 @@ public class BossBar {
         pk.yaw = 0;
         pk.pitch = 0;
         pk.metadata = this.metadata;
-        pk.attributes = new Attribute[]{Attribute.getAttribute(4).setMaxValue((float) this.maxHealth).setValue((float) this.getHealth())};
+        pk.attributes = new Attribute[]{Attribute.getAttribute(Attribute.MAX_HEALTH).setMaxValue(100).setValue(100)};
 
-        UpdateAttributesPacket pk1 = new UpdateAttributesPacket();
-        pk1.entityId = this.id;
-        pk1.entries = new Attribute[]{Attribute.getAttribute(Attribute.MAX_HEALTH).setMaxValue((float) this.maxHealth).setValue((float) this.getHealth())};
         p.dataPacket(pk);
-        p.dataPacket(pk1);
 
         BossEventPacket pk2 = new BossEventPacket();
         pk2.type = BossEventPacket.TYPE_SHOW;
-        pk2.healthPercent = (float) health / maxHealth;
+        pk2.healthPercent = percent;
         pk2.title = this.text;
+        pk2.color = Color.YELLOW.getRGB();
         pk2.bossEid = id;
 
         p.dataPacket(pk2);
@@ -116,31 +116,36 @@ public class BossBar {
         p.dataPacket(pk2);
     }
 
-    public void setHealth(int health) {
-        this.health = Math.max(health, 1);
-    }
-
-    public void setMaxHealth(int health) {
-        this.maxHealth = Math.max(health, 1);
-    }
-
     public void updateText(String text) {
         this.text = text;
     }
 
     public void updateData() {
         BossEventPacket pk = new BossEventPacket();
-        pk.type = BossEventPacket.TYPE_UPDATE;
-        pk.healthPercent = (float) health / maxHealth;
+        pk.type = BossEventPacket.TYPE_HEALTH_PERCENT;
+        pk.healthPercent = percent;
+        pk.bossEid = id;
+
+        plugin.getServer().batchPackets(players.values().toArray(new Player[0]), new DataPacket[]{pk});
+
+        pk = new BossEventPacket();
+        pk.type = BossEventPacket.TYPE_TITLE;
         pk.title = this.text;
         pk.bossEid = id;
 
         plugin.getServer().batchPackets(players.values().toArray(new Player[0]), new DataPacket[]{pk});
+
+//        pk = new BossEventPacket();
+//        pk.type = BossEventPacket.TYPE_;
+//        pk.title = this.text;
+//        pk.bossEid = id;
+//
+//        plugin.getServer().batchPackets(players.values().toArray(new Player[0]), new DataPacket[]{pk});
     }
 
     public Vector3 getDirectionVector(Player p) {
         double pitch = 1.5707963267948966D;
-        double yaw = (p.getYaw() + (double) this.random.nextRange(-10, 10) + 90) * 3.141592653589793D / 180.0D;
+        double yaw = (p.getYaw() + (double) this.random.nextRange(-10, 10) + 90) * Math.PI / 180D;
         double x = Math.sin(pitch) * Math.cos(yaw);
         double z = Math.sin(pitch) * Math.sin(yaw);
         double y = Math.cos(pitch);
@@ -149,13 +154,5 @@ public class BossBar {
 
     public long getId() {
         return this.id;
-    }
-
-    public int getHealth() {
-        return this.health;
-    }
-
-    public int getMaxHealth() {
-        return this.maxHealth;
     }
 }

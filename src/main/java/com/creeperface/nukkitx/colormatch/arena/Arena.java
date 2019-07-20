@@ -92,9 +92,7 @@ public class Arena extends ArenaManager implements Listener {
         scheduler.id = this.plugin.getServer().getScheduler().scheduleRepeatingTask(plugin, scheduler, 20).getTaskId();
         this.enabled = true;
 
-        this.bossBar.setMaxHealth(this.colorChangeInterval * 10);
-        this.bossBar.setHealth(this.colorChangeInterval * 10);
-
+        this.bossBar.setPercent(0.5f);
         this.bossBar.updateText(plugin.getLanguage().translateString("waiting_players", false, "0", plugin.conf.getMaxPlayers() + ""));
 
         updateJoinSign();
@@ -151,7 +149,7 @@ public class Arena extends ArenaManager implements Listener {
         scheduler.floor = true;
         scheduler.floorResetedTick = plugin.getServer().getTick();
 
-        this.fastTask = this.plugin.getServer().getScheduler().scheduleRepeatingTask(plugin, new FastTask(this), 2);
+        this.fastTask = this.plugin.getServer().getScheduler().scheduleRepeatingTask(plugin, new FastTask(this), 1);
 
         startTime = System.currentTimeMillis();
 
@@ -391,7 +389,7 @@ public class Arena extends ArenaManager implements Listener {
 
         TextFormat chatColor = TextFormat.values()[new Random().nextInt(16)];
 
-        this.bossBar.setHealth(colorChangeInterval * 10);
+        this.bossBar.setPercent(1);
         this.bossBar.updateText(chatColor + DyeColor.getByWoolData(currentColor).getName());
         this.bossBar.updateData();
     }

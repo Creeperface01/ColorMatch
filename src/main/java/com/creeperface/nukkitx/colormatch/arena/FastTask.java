@@ -1,6 +1,5 @@
 package com.creeperface.nukkitx.colormatch.arena;
 
-import cn.nukkit.utils.MainLogger;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -17,14 +16,12 @@ public class FastTask implements Runnable {
             ArenaSchedule scheduler = plugin.scheduler;
 
             if (scheduler.floor) {
-                int interval = plugin.getColorChangeInterval() * 10;
-                int tick = plugin.plugin.getServer().getTick();
-                int begin = scheduler.floorResetedTick;
+                float interval = plugin.getColorChangeInterval() * 20;
+                float tick = plugin.plugin.getServer().getTick();
+                float begin = scheduler.floorResetedTick;
 
-                this.plugin.bossBar.setHealth(interval - ((tick - begin) / 2));
+                this.plugin.bossBar.setPercent(1 - ((tick - begin) / interval));
                 this.plugin.bossBar.updateData();
-
-                MainLogger.getLogger().info("progress: " + (interval - (((tick - begin) / 2) * interval)) + "/" + (interval * 10));
             }
         }
     }

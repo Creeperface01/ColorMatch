@@ -15,14 +15,8 @@
 
     <repositories>
         <repository>
-            <id>nukkitx-repo-release</id>
-            <url>https://repo.nukkitx.com/release/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
+            <id>nukkitx-repo</id>
+            <url>http://repo.nukkitx.com/main/</url>
         </repository>
     </repositories>
 
