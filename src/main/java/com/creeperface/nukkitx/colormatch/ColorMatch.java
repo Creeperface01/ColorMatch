@@ -66,6 +66,8 @@ public class ColorMatch extends PluginBase {
         new File(this.getDataFolder(), "arenas").mkdirs();
         boolean first = saveResource("config.yml");
         saveResource("lang/English.yml");
+        saveResource("lang/Czech.yml");
+        saveResource("lang/Chinese.yml");
 
         this.conf = new MainConfiguration(this);
         if (!this.conf.load(first)) {
