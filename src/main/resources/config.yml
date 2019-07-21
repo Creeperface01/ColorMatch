@@ -1,7 +1,7 @@
 #DO NOT CHANGE THIS!!!
 version: 2
 
-#game language
+#game language(can use: English, Czech, Chinese)
 language: English
 
 #server spawn
