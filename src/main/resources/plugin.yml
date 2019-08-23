@@ -10,7 +10,7 @@ softdepend: ["DbLib"]
 commands:
   colormatch:
     description: "Main ColorMatch command"
-    permission: "colormatch.command"
+    #    permission: "colormatch.command"
     default: "op"
     aliases: ["cm"]
 
