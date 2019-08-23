@@ -157,7 +157,7 @@ public class ColorMatch extends PluginBase {
 
             Arena arena = args.length >= 2 ? arenas.get(args[1].toLowerCase()) : null;
 
-            if (!sender.hasPermission("cm.command." + args[0].toLowerCase())) {
+            if (!sender.hasPermission("colormatch.command." + args[0].toLowerCase())) {
                 sender.sendMessage(cmd.getPermissionMessage());
                 return true;
             }
