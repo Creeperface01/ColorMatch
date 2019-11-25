@@ -67,9 +67,6 @@ public class ColorMatch extends PluginBase {
     public void onEnable() {
         new File(this.getDataFolder(), "arenas").mkdirs();
         boolean first = saveResource("config.yml");
-        saveResource("lang/English.yml");
-        saveResource("lang/Czech.yml");
-        saveResource("lang/Chinese.yml");
 
         this.conf = new MainConfiguration(this);
         if (!this.conf.load(first)) {
@@ -545,6 +542,11 @@ public class ColorMatch extends PluginBase {
     }
 
     private void initLanguage() {
+        saveResource("lang/English.yml");
+        saveResource("lang/Czech.yml");
+        saveResource("lang/Chinese.yml");
+        saveResource("lang/Korean.yml");
+
         File languages = new File(getDataFolder(), "lang");
         String lang = conf.getLanguage();
 
