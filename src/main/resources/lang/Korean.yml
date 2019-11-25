@@ -138,7 +138,7 @@ stats:
 
 arena_builder:
   success: "&a아레나가 성공적으로 생성되었습니다 &7(%0 블록, %1 초)"
-  failure: "&c생성할 수 없습니다. 바닥의 Y좌표가 너무 낮습니다"
+  failure: "&c생성할 수 없습니다. 바닥의 Y좌표가 너무 낮습니다."
 
 custom_words:
   arena: "arena"
