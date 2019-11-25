@@ -1,0 +1,147 @@
+## Korean translation by good777LUCKY
+general:
+  permission_message: "&c당신은 이것을 실행시킬 권한이 없습니다."
+  arena_running: "&c아레나는 이미 진행중입니다."
+  arena_not_running: "&e아레나가 진행중이지 않습니다!"
+  player_not_exist: "&c현재 플레이어가 아레나 안에 있지 않습니다."
+  arena_doesnt_exist: "&c아레나가 존재하지 않습니다."
+  arena_doesnt_exist2: "&c아레나 %0 은/는 존재하지 않습니다."
+  arena_already_exist: "&c아레나가 이미 존재합니다."
+  arena_already_disabled: "&e아레나는 이미 비활성화 되있습니다."
+  arena_already_enabled: "&e아레나는 이미 활성화 되있습니다."
+  arena_in_setup_mode: "&c이 아레나는 아직 설정 모드가 진행중입니다."
+  game_full: "&c아레나가 꽉 찼습니다."
+  create_sign: "&a표지판이 성공적으로 만들어졌습니다."
+  load_all: "&a아레나를 불러오는 중..."
+  disable_all: "아레나를 비활성화하는 중..."
+  load_arena: "&7%0 &a- 불러오기 성공"
+  disable_arena: "%0 비활성화중..."
+  no_arenas: "&a아레나를 찾을 수 없습니다."
+  available_arenas: "&7현재 가능한 ColorMatch 아레나:"
+  waiting_players: "&e플레이어를 기다리는 중... &7(%0/%1)"
+
+game:
+  join: "&e%0 &7에 참가하는 중&7..."
+  join_spectator: "&7관람자 모드로 참가하는 중..."
+  join_others: "&e%0&7 님께서 참여하였습니다. (&9%1&e / &9%2&7)"
+  leave: "&7아레나를 떠나는 중..."
+  leave_others: "&e%0&7 님께서 게임을 떠나셨습니다. (&9%1&e / &9%2&7)"
+  start_game: "&b게임 시작!"
+  death: "&e%0 &7님께서 탈락하셨습니다! &b%1 &7명 남음."
+  send_to_main_world: "&2로비로 돌아가는 중..."
+  starting: "&a게임 시작까지 %0 초 남음."
+  kick_from_game: "&9%0을/를 함으로써 게임에서 추방당하셨습니다."
+  commands: "&c여기서는 명령어를 쓸 수 없습니다."
+  already: "&c당신은 이미 게임에 참가하셨습니다."
+  #reward for win
+  reward: "&a이긴 보상으로 %0 코인을 받으셨습니다!"
+  #end game message
+  end_game: "§6§l---------------------§r\n§5아레나 %0 (이)가 끝났습니다.\n§4우승자:\n§a1. %1\n§e2. %2\n§c3. %3\n§6§l---------------------"
+###################
+#Commands messages#
+###################
+commands:
+  help:
+    help: "&e/cm help &7을 이용하세요."
+    join: "&e/cm join &a<아레나 이름> &7을 이용하세요."
+    enable: "&e/cm enable &a<아레나 이름> &7을 이용하세요."
+    disable: "&e/cm disable &a<아레나 이름> &7을 이용하세요."
+    leave: "&e/cm leave &a<아레나 이름> &7을 이용하세요."
+    start: "&e/cm start &a<아레나 이름> &7을 이용하세요."
+    stop: "&e/cm stop &a<아레나 이름> &7을 이용하세요."
+    set: "&e/cm configure &a<아레나 이름> &7을 이용하세요."
+    create: "&e/cm create &a<아레나 이름> &7을 이용하세요."
+    setlobby_player: "&e/cm setlobby &7을 이용하세요."
+    setlobby: "&e/cm setlobby &a<x> <y> <z> [월드] &7을 이용하세요."
+    build: "&e/cm build &a<아레나 이름> [블록] &7을 이용하세요."
+    stats: "&e/cm stats [플레이어] &7을 이용하세요."
+    list: "&e/cm list [월드 이름] &7을 이용하세요."
+
+  success:
+    disable: "&a아레나 &e%0 &a비활성화 중..."
+    enable: "&a아레나 &e%0 &a활성화 중..."
+    start: "&a아레나가 시작되었습니다."
+    stop: "&a아레나가 중지되었습니다."
+    set: "&e당신은 현재 아레나 &9%0 &e을/를 편집중입니다."
+    stats: "&d>> &7플레이어 &e%0 &7님의 &eColorMatch &7통계를 &7보여주는 중..."
+    create: "&e아레나가 성공적으로 생성되었습니다!"
+    build: "&a아레나 &e%0 &a을/를 건축 중..."
+    setlobby: "&a로비 위치가 성공적으로 설정되었습니다."
+
+  failure:
+    enable: "&c아레나가 잘못 설정되었거나 활성화하는 도중 오류가 발생하였습니다."
+    run_command_ingame: "&e이 명령어는 게임 내에서만 이용하실 수 있습니다."
+    unknown_world: "&c월드 %0 (이)가 존재하지 않습니다."
+    invalid_block: "&c블록 %0 (이)가 존재하지 않습니다."
+    list_empty: "&c불러와진 아레나가 없습니다."
+    build_enable: "&c먼저 아레나를 활성화해야 합니다."
+    stats_player: "플레이어 '%0' &c님과 관련된 데이터를 찾을 수 없습니다."
+    stats_disabled: "&c통계가 비활성화 되어있습니다."
+#####################
+#setup mode messages#
+#####################
+setupmode:
+  help:
+    game_type: "&7사용법: &etype &b[classic/furious/stoned/blind]"
+    floor_type: "&7사용법: &efloortype &b[wool/clay/carpet/glass]"
+    colortime: "&7사용법: &ecolortime &b<seconds>"
+    radius: "&7사용법: &efloorradius &b<radius>"
+    aggressive: "&eaggressive &b<true/false> &7을 사용하세요."
+    help: "&7도움말을 보여주는 중... &a(페이지: %0/%1):"
+    help_messages:
+
+
+  failure:
+    number_error: "&c존재하는 숫자를 입력해주세요."
+    floor_type_error: "&c존재하는 바닥종류를 입력해주세요."
+    arena_type_error: "&c존재하는 아레나 종류를 입력해주세요."
+    missing_arguments: "&e아레나가 제대로 설정되지 않았습니다! 뭔 가 빠졌습니다. (&7 %0 &e) \n&e아레나를 저장하시겠습니까? <yes/no>"
+    unknown_command: "&c알수없는 명령어입니다. 도움말이 필요하면 'help' 를 입력해주세요."
+
+  enable: "&e당신은 이제 아레나 &9%0 &e을/를 편집중입니다."
+  continue: "&e아레나 설정을 계속하실 수 있습니다."
+  continue_join: "&e당신은 현재 아레나 %0 을/를 편집중입니다."
+  save: "&a아레나가 성공적으로 저장되었습니다. &a불러올려면 &e/cm enable %0 &a을/를 입력해주세요."
+  joinsign: "&a게임 참가 표지판을 &eX: &9%0 &eY: &9%1 &eZ: &9%2 &a(으)로 설정되었습니다."
+  startpos: "&a시작 지점을 &eX: &9%0 &eY: &9%1 &eZ: &9%2 &a(으)로 설정되었습니다."
+  floorpos: "&a바닥 위치가 &eX: &9%0 &eY: &9%1 &eZ: &9%2 &a(으)로 설정되었습니다."
+  spectatorspawn: "&a관람자 생성 지점을 &eX: &9%0 &eY: &9%1 &eZ: &9%2 &a(으)로 설정되었습니다."
+  mainlobby: "&a메인 로비 위치가 성공적으로 변경되었습니다."
+  game_type: "&a아레나 종류가 성공적으로 변경되었습니다."
+  floor_type: "&a바닥 재질이 성공적으로 변경되었습니다."
+  colortime: "&a색깔이 변경되는 시간이 성공적으로 변경되었습니다."
+  radius: "&a바닥 범위가 &e%0 &a(으)로 변경되었습니다."
+  aggressive: "&a공격적 모드가 변경되었습니다."
+
+##################################
+#colorMatch help command messages#
+##################################
+help:
+  main: "&7ColorMatch 도움말을 보여주는 중... (페이지: %0/%1):"
+  lobby: "\n- &2/cm lobby &l&5»&r&f 로비로 순간이동합니다."
+  leave: "\n- &2/cm leave &l&5»&r&f 아레나를 떠납니다."
+  join: "\n- &2/cm join &b<아레나 이름> &l&5»&r&f 아레나를 참가합니다."
+  start: "\n- &2/cm start &b[아레나 이름] &l&5»&r&f 강제로 아레나를 시작합니다."
+  stop: "\n- &2/cm stop &b[아레나 이름] &l&5»&r&f 강제로 아레나를 중지합니다."
+  kick: "\n- &2/cm kick &b[아레나 이름] [플레이어 이름] [이유] &l&5»&r&f 아레나에서 플레이어를 추방시킵니다."
+  set: "\n- &2/cm configure &b<아레나 이름> &l&5»&r&f 아레나를 설정하거나 변경합니다."
+  delete: "\n- &2/cm delete &b[아레나 이름] &l&5»&r&f 존재하는 아레나를 삭제합니다."
+  create: "\n- &2/cm create &b<아레나 이름> &l&5»&r&f 아레나를 새로 만듭니다."
+  build: "\n- &2/cm build &b<아레나 이름> [블록] &l&5»&r&f 간단한 아레나를 건축해줍니다."
+
+stats:
+  own: "&7당신의 ColorMatch 통계를 보여주는 중:"
+  another: "&9%0님&7의 ColorMatch 통계를 보여주는 중:"
+  wins: "&e승리: &7%0"
+  deaths: "&e패배: &7%0"
+  rounds: "&e총 게임한 횟수: &7%0"
+
+arena_builder:
+  success: "&a아레나가 성공적으로 생성되었습니다 &7(%0 블록, %1 초)"
+  failure: "&c생성할 수 없습니다. 바닥의 Y좌표가 너무 낮습니다."
+
+custom_words:
+  arena: "arena"
+  use: "use"
+  world: "world"
+  player: "player"
