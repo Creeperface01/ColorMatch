@@ -546,6 +546,7 @@ public class ColorMatch extends PluginBase {
         saveResource("lang/Czech.yml");
         saveResource("lang/Chinese.yml");
         saveResource("lang/Korean.yml");
+        saveResource("lang/German.yml");
 
         File languages = new File(getDataFolder(), "lang");
         String lang = conf.getLanguage();
