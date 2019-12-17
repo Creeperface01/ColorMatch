@@ -1,0 +1,147 @@
+## German translation by SuprexDE
+general:
+  permission_message: "&cDu hast keine Berechtigung, diese Aktion auszuführen!"
+  arena_running: "&cArena läuft bereits"
+  arena_not_running: "&Arena läuft nicht"
+  player_not_exist: "&cSpieler ist nicht in der Arena"
+  arena_doesnt_exist: "&cArena exestiert nicht"
+  arena_doesnt_exist2: "&cArena %0 existiert nicht"
+  arena_already_exist: "&cArena existiert bereits"
+  arena_already_disabled: "&eArena ist bereits deaktiviert"
+  arena_already_enabled: "&eArena ist bereits aktiviert"
+  arena_in_setup_mode: "&cDiese Arena befindet sich derzeit im Wartungs-Modus"
+  game_full: "&cArena ist voll"
+  create_sign: "&aSchild erfolgreich erstellt"
+  load_all: "&aArenen werden geladen..."
+  disable_all: "Alle Arenen deaktivieren..."
+  load_arena: "&7%0 &a- wurde erfolgreich geladet"
+  disable_arena: "Deaktiviere %0..."
+  no_arenas: "&aKeine Arenen gefunden"
+  available_arenas: "&7Verfügbare ColorMatch-Arenen:"
+  waiting_players: "&eWarten auf Spielern &7(%0/%1)"
+
+game:
+  join: "&7Betrete die Arena &e%0&7..."
+  join_spectator: "&7Betreten als Zuschauer..."
+  join_others: "&e%0&7 ist beigereten (&9%1&e / &9%2&7)"
+  leave: "&7Verlasse Arena..."
+  leave_others: "&e%0&7 hat verlassen (&9%1&e / &9%2&7)"
+  start_game: "&bSpiel startet!"
+  death: "&e%0 &7wurde eliminiert &b%1 &7Spieler verbleiben"
+  send_to_main_world: "&2Rückkehr in die Lobby ...."
+  starting: "&aSpiel startet in %0 Sekunden"
+  kick_from_game: "&9Du wurdest wegen %0 aus dem Spiel geworfen"
+  commands: "&cDu kannst hier keine Befehle benutzen"
+  already: "&cDu bist bereits in einem Spiel"
+  #reward for win
+  reward: "&aDu hastt %0 coins gewonnen!"
+  #end game message
+  end_game: "§6§l---------------------§r\n§5Arena %0 wurde beendet\n§4Gewinner:\n§a1. %1\n§e2. %2\n§c3. %3\n§6§l---------------------"
+###################
+#Commands messages#
+###################
+commands:
+  help:
+    help: "&7Benutze &e/cm help"
+    join: "&e7Benutze &e/cm join &a<Arena Name>"
+    enable: "&e7Benutze &e/cm enable &a<Arena Name>"
+    disable: "&e7Benutze &e/cm disable &a<Arena Name>"
+    leave: "&7Benutze &e/cm leave &a<Arena Name>"
+    start: "&7Benutze &e/cm start &a<Arena Name>"
+    stop: "&7Benutze &e/cm stop &a<Arena Name>"
+    set: "&7Benutze &e/cm configure &a<Arena Name>"
+    create: "&7Benutze &e/cm create &a<Arena Name>"
+    setlobby_player: "&7Benutze &e/cm setlobby"
+    setlobby: "&7Benutze &e/cm setlobby &a<x> <y> <z> [Welt]"
+    build: "&7Benutze &e/cm build &a<Arena Name> [Block]"
+    stats: "&7Benutze &e/cm stats [Spieler]"
+    list: "&7Benutze &e/cm list [Welt Name]"
+
+  success:
+    disable: "&aDeaktiviere Arena &e%0&a..."
+    enable: "&aAktiviere Arena &e%0&a..."
+    start: "&aArena wurde gestartet"
+    stop: "&aArena wurde gestoppt"
+    set: "&eDu bearbeitest gerade die Arena &9%0"
+    stats: "&d>> &7Zeigt &eColorMatch &7Statistiken von &e%0"
+    create: "&eArena wurde erfolgreich erstellt!"
+    build: "&aErbaue Arena &e%0&a..."
+    setlobby: "&aLobby Position wurde erfolgreich gesetzt"
+
+  failure:
+    enable: "&cArena ist nicht richtig konfiguriert oder es ist ein Fehler beim Aktivieren aufgetreteng"
+    run_command_ingame: "&eDu kannst diesen Befehl nur InGame benutzen"
+    unknown_world: "&cWelt %0 exestiert nicht"
+    invalid_block: "&cBlock %0 exestiert nicht"
+    list_empty: "&cEs sind keine Arenen geladen"
+    build_enable: "&cDu musst zuerst die Arena aktivieren"
+    stats_player: "&cEs sind keine Statistiken des Spielers gespeichert von '%0'"
+    stats_disabled: "&cStatistiken sind deaktiviert"
+#####################
+#setup mode messages#
+#####################
+setupmode:
+  help:
+    game_type: "&7Benutze: &etype &b[classic/furious/stoned/blind]"
+    floor_type: "&7Benutze: &efloortype &b[wool/clay/carpet/glass]"
+    colortime: "&7Benutze: &ecolortime &b<Sekunden>"
+    radius: "&7Benutze: &efloorradius &b<Radius>"
+    aggressive: "&7Benutze: &eaggressive &b<true/false>"
+    help: "&7Hilfeseite anzeigen &a%0/%1:"
+    help_messages:
+
+
+  failure:
+    number_error: "&cBitte gebe eine gültige Zahl ein"
+    floor_type_error: "&cBitte gebe einen gültigen Bodentyp ein"
+    arena_type_error: "&cBitte gebe ein gültigen Arenatyp ein"
+    missing_arguments: "&eArena ist nicht richtig konfiguriert! Einige Argumente fehlen (&7 %0 &e) \n&eMöchtest du die Arena sichern? <yes/no>"
+    unknown_command: "&cUnbekannter Befehl. Benutze 'help' für Hilfe"
+
+  enable: "&eDu verändertst die Arena &9%0"
+  continue: "&eSie können mit der Konfiguration der Arena fortfahren"
+  continue_join: "&eDu konfigurierst die Arena %0"
+  save: "&aArena wurde erfolgreich gespeichert. Benutze &e/cm enable %0 &a  um das Spiel zu laden"
+  joinsign: "&aSchild Position gesetzt bei &eX: &9%0 &eY: &9%1 &eZ: &9%2"
+  startpos: "&aStart Position gesetzt bei &eX: &9%0 &eY: &9%1 &eZ: &9%2"
+  floorpos: "&aBoden Position gesetzt bei &eX: &9%0 &eY: &9%1 &eZ: &9%2"
+  spectatorspawn: "&aZuschauer Position gesetzt bei &9%0 &eX: &9%0 &eY: &9%1 &eZ: &9%2"
+  mainlobby: "&aDie Position der Hauptlobby wurde erfolgreich aktualisiert"
+  game_type: "&aDer Arenatyp wurde erfolgreich aktualisiert"
+  floor_type: "&aBodenmaterial wurde erfolgreich aktualisiert"
+  colortime: "&aFarbwechselintervall wurde erfolgreich aktualisiert"
+  radius: "&aBoden Position gesetzt bei &e%0"
+  aggressive: "&aAggressive Modus wurde aktualisiert"
+
+##################################
+#colorMatch help command messages#
+##################################
+help:
+  main: "&7Zeige ColorMatch Hilfeseite %0/%1:"
+  lobby: "\n- &2/cm lobby &l&5»&r&f Teleportiere zur Lobby"
+  leave: "\n- &2/cm leave &l&5»&r&f Verlasse die Arena"
+  join: "\n- &2/cm join &b<Arena Name> &l&5»&r&f Betrete die Arena"
+  start: "\n- &2/cm start &b[Arena Name] &l&5»&r&f Starte direkt die Runde"
+  stop: "\n- &2/cm stop &b[Arena Name] &l&5»&r&f Stoppe direkt die Runde"
+  kick: "\n- &2/cm kick &b[Arena Name] [Spieler Name] [Grund] &l&5»&r&f Wirf ein Spieler aus der Runde"
+  set: "\n- &2/cm configure &b<Arena Name> &l&5»&r&f Arena einstellen oder ändern"
+  delete: "\n- &2/cm delete &b[Arena Name] &l&5»&r&f Entferne eine bestehende Arena"
+  create: "\n- &2/cm create &b<Arena Name> &l&5»&r&f Erstelle eine neue Arena"
+  build: "\n- &2/cm build &b<Arena Name> [Block] &l&5»&r&f Erbaue eine einfache Arena"
+
+stats:
+  own: "&7Zeige deine ColorMatch Statistiken:"
+  another: "&7Zeige &9%0's&7 ColorMatch Statistiken:"
+  wins: "&eGewonnen: &7%0"
+  deaths: "&eTode: &7%0"
+  rounds: "&eRunden: &7%0"
+
+arena_builder:
+  success: "&aArena wurde erfolgreich generiert &7(%0 Blöcke, %1 Sekunden)"
+  failure: "&cKonnte nicht generieren. Y ist zu niedrig"
+
+custom_words:
+  arena: "Arena"
+  use: "benutze"
+  world: "Welt"
+  player: "Spieler"
