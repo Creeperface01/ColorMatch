@@ -43,9 +43,9 @@ game:
 commands:
   help:
     help: "&7pouzij &e/cm help"
-    join: "&epouzij &e/cm join &a<jmeno areny>"
-    enable: "&epouzij &e/cm enable &a<jmeno areny>"
-    disable: "&epouzij &e/cm disable &a<jmeno areny>"
+    join: "&7pouzij &e/cm join &a<jmeno areny>"
+    enable: "&7pouzij &e/cm enable &a<jmeno areny>"
+    disable: "&7pouzij &e/cm disable &a<jmeno areny>"
     leave: "&7pouzij &e/cm leave &a<jmeno areny>"
     start: "&7pouzij &e/cm start &a<jmeno areny>"
     stop: "&7pouzij &e/cm stop &a<jmeno areny>"
