@@ -43,9 +43,9 @@ game:
 commands:
   help:
     help: "&7Benutze &e/cm help"
-    join: "&e7Benutze &e/cm join &a<Arena Name>"
-    enable: "&e7Benutze &e/cm enable &a<Arena Name>"
-    disable: "&e7Benutze &e/cm disable &a<Arena Name>"
+    join: "&7Benutze &e/cm join &a<Arena Name>"
+    enable: "&7Benutze &e/cm enable &a<Arena Name>"
+    disable: "&7Benutze &e/cm disable &a<Arena Name>"
     leave: "&7Benutze &e/cm leave &a<Arena Name>"
     start: "&7Benutze &e/cm start &a<Arena Name>"
     stop: "&7Benutze &e/cm stop &a<Arena Name>"
