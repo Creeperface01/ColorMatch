@@ -43,9 +43,9 @@ game:
 commands:
   help:
     help: "&7use &e/cm help"
-    join: "&euse &e/cm join &a<arena name>"
-    enable: "&euse &e/cm enable &a<arena name>"
-    disable: "&euse &e/cm disable &a<arena name>"
+    join: "&7use &e/cm join &a<arena name>"
+    enable: "&7use &e/cm enable &a<arena name>"
+    disable: "&7use &e/cm disable &a<arena name>"
     leave: "&7use &e/cm leave &a<arena name>"
     start: "&7use &e/cm start &a<arena name>"
     stop: "&7use &e/cm stop &a<arena name>"
