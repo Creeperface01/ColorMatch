@@ -43,9 +43,9 @@ game:
 commands:
   help:
     help: "&7请使用 &e/cm help"
-    join: "&e请使用 &e/cm join &a<竞技场名称>"
-    enable: "&e请使用 &e/cm enable &a<竞技场名称>"
-    disable: "&e请使用 &e/cm disable &a<竞技场名称>"
+    join: "&7请使用 &e/cm join &a<竞技场名称>"
+    enable: "&7请使用 &e/cm enable &a<竞技场名称>"
+    disable: "&7请使用 &e/cm disable &a<竞技场名称>"
     leave: "&7请使用 &e/cm leave &a<竞技场名称>"
     start: "&7请使用 &e/cm start &a<竞技场名称>"
     stop: "&7请使用 &e/cm stop &a<竞技场名称>"
