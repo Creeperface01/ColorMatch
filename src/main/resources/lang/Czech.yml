@@ -43,14 +43,14 @@ game:
 commands:
   help:
     help: "&7pouzij &e/cm help"
-    join: "&e7pouzij &e/cm join &a<jmeno areny>"
-    enable: "&e7pouzij &e/cm enable &a<jmeno areny>"
-    disable: "&e7pouzij &e/cm disable &a<jmeno areny>"
+    join: "&epouzij &e/cm join &a<jmeno areny>"
+    enable: "&epouzij &e/cm enable &a<jmeno areny>"
+    disable: "&epouzij &e/cm disable &a<jmeno areny>"
     leave: "&7pouzij &e/cm leave &a<jmeno areny>"
     start: "&7pouzij &e/cm start &a<jmeno areny>"
     stop: "&7pouzij &e/cm stop &a<jmeno areny>"
     set: "&7pouzij &e/cm configure &a<jmeno areny>"
-    create: "&7u0se &e/cm create &a<jmeno areny>"
+    create: "&7use &e/cm create &a<jmeno areny>"
     setlobby_player: "&7pouzij &e/cm setlobby"
     setlobby: "&7pouzij &e/cm setlobby &a<x> <y> <z> [jmeno sveta]"
     build: "&7pouzij &e/cm build &a<jmeno areny> [blok]"
