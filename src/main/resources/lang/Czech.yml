@@ -50,7 +50,7 @@ commands:
     start: "&epouzij /cm start &a<jmeno areny>"
     stop: "&epouzij /cm stop &a<jmeno areny>"
     set: "&epouzij /cm configure &a<jmeno areny>"
-    create: "&euse /cm create &a<jmeno areny>"
+    create: "&epouzij /cm create &a<jmeno areny>"
     setlobby_player: "pouzij &e/cm setlobby"
     setlobby: "&epouzij /cm setlobby &a<x> <y> <z> [jmeno sveta]"
     build: "&epouzij /cm build &a<jmeno areny> [blok]"
